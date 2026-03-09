@@ -11,47 +11,32 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;min-height:100vh;font-size:15px}
   button{cursor:pointer;font-family:inherit}
-  input,select,textarea{font-family:inherit;font-size:15px}
-
-  /* Header */
-  #header{background:#0f766e;color:white;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;gap:10}
+  #header{background:#0f766e;color:white;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;gap:10;flex-wrap:wrap}
   #header h1{font-size:17px;font-weight:700}
   #header p{font-size:11px;opacity:0.75;margin-top:1px}
-  .tab-row{display:flex;gap:6px;flex-wrap:wrap}
+  .tab-row{display:flex;gap:6px}
   .tab{padding:6px 13px;border-radius:16px;border:none;font-size:13px;font-weight:600;cursor:pointer}
   .tab.on{background:white;color:#0f766e}
   .tab.off{background:rgba(255,255,255,0.18);color:white}
-  .export-btn{padding:6px 13px;border-radius:8px;border:1px solid rgba(255,255,255,0.5);background:transparent;color:white;font-size:13px;font-weight:600}
-
-  /* Content */
   #content{max-width:680px;margin:0 auto;padding:14px 14px 80px}
-
-  /* Date nav */
-  .date-nav{display:flex;align-items:center;gap:10;margin-bottom:12px}
-  .arrow{width:40px;height:40px;border-radius:50%;border:1px solid #cbd5e1;background:white;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}
+  .nav-bar{display:flex;align-items:center;gap:10;margin-bottom:14px}
+  .arrow{width:40px;height:40px;border-radius:50%;border:1px solid #cbd5e1;background:white;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .arrow:disabled{opacity:0.25;cursor:default}
-  .date-center{flex:1;text-align:center}
-  .date-main{font-size:16px;font-weight:700;color:#0f766e}
-  .date-sub{font-size:12px;color:#94a3b8;margin-top:2px}
-
-  /* Totals banner */
+  .nav-center{flex:1;text-align:center}
+  .nav-main{font-size:16px;font-weight:700;color:#0f766e}
+  .nav-sub{font-size:12px;color:#94a3b8;margin-top:2px}
   .banner{background:linear-gradient(135deg,#0f766e,#0d9488);border-radius:12px;padding:13px 16px;margin-bottom:10px;color:white}
   .banner-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:0.75;margin-bottom:8px}
-  .banner-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+  .banner-grid{display:grid;grid-template-columns:repeat(4,1fr)}
   .banner-col{display:flex;flex-direction:column;align-items:center;border-left:1px solid rgba(255,255,255,0.2);padding:0 4px}
   .banner-col:first-child{border-left:none;padding-left:0}
   .banner-val{font-size:14px;font-weight:700;min-height:20px;text-align:center}
-  .banner-lbl{font-size:10px;opacity:0.7;margin-bottom:5px;text-align:center}
-  .banner-input{width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:5px;padding:3px 4px;color:white;font-size:11px;text-align:center;outline:none}
-  .banner-input::placeholder{color:rgba(255,255,255,0.5)}
-
-  /* Day meta fields */
-  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-  .meta-grid.full{grid-template-columns:1fr}
-  .meta-field label{display:block;font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
-  .meta-field input{width:100%;padding:9px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;background:white}
-
-  /* Meal groups */
+  .banner-lbl{font-size:10px;opacity:0.7;text-align:center}
+  .meta-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .meta-box{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px}
+  .meta-box-label{font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
+  .meta-box-value{font-size:14px;color:#1e293b}
+  .meta-box-empty{font-size:13px;color:#cbd5e1;font-style:italic}
   .meal-group{border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;background:white;margin-bottom:10px}
   .meal-header{display:flex;align-items:center;gap:8px;padding:8px 14px;border-left:4px solid}
   .meal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -62,500 +47,480 @@
   .entry-desc{font-size:14px;color:#1e293b;margin-bottom:4px;word-break:break-word}
   .entry-macros{display:flex;flex-wrap:wrap;gap:5px}
   .macro-pill{font-size:11px;background:#f1f5f9;color:#64748b;padding:2px 7px;border-radius:5px}
-  .entry-actions{display:flex;gap:4px;flex-shrink:0}
-  .icon-btn{background:none;border:none;font-size:16px;opacity:0.5;padding:4px;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center}
-
-  /* Add button */
-  .add-btn{display:block;width:100%;padding:13px;background:#0f766e;color:white;border:none;border-radius:10px;font-size:16px;font-weight:600;margin-top:14px}
-
-  /* Form */
-  .form-card{margin-top:14px;background:white;border:1px solid #e2e8f0;border-radius:12px;padding:16px}
-  .form-title{font-size:15px;font-weight:700;color:#0f766e;margin-bottom:14px}
-  .form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-  .form-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-  .form-field label{display:block;font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
-  .form-field input,.form-field select{width:100%;padding:9px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;background:#fafafa}
-  .desc-row{display:flex;gap:8px;margin-bottom:6px}
-  .desc-row input{flex:1;padding:9px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;outline:none;background:#fafafa}
-  .estimate-btn{padding:9px 14px;border:none;border-radius:8px;background:#0d9488;color:white;font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0}
-  .estimate-btn:disabled{background:#94a3b8}
-  .desc-hint{font-size:11px;color:#94a3b8;margin-bottom:10px}
-  .form-actions{display:flex;gap:8px;justify-content:flex-end}
-  .cancel-btn{padding:10px 18px;border:1px solid #cbd5e1;border-radius:8px;background:white;color:#475569;font-size:14px}
-  .save-btn{padding:10px 18px;border:none;border-radius:8px;background:#0f766e;color:white;font-size:14px;font-weight:600}
-
-  /* Week view */
-  .week-card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer}
-  .week-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-  .week-date{font-size:14px;font-weight:700;color:#0f766e}
-  .steps-badge{font-size:11px;background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:10px}
-  .week-macros{font-size:12px;color:#0f766e;font-weight:600;margin-bottom:5px;display:flex;flex-wrap:wrap;gap:6px}
-  .week-exercise{font-size:12px;color:#0369a1;margin-bottom:2px}
-  .week-symptoms{font-size:12px;color:#b45309;font-style:italic;margin-bottom:2px}
-  .week-meds{font-size:12px;color:#7c3aed;margin-bottom:6px}
-  .meal-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-  .meal-chip{font-size:11px;border:1px solid;border-radius:7px;padding:2px 7px}
-  .more-badge{font-size:11px;background:#f1f5f9;color:#64748b;padding:2px 7px;border-radius:7px}
-
-  /* Empty state */
   .empty{text-align:center;color:#94a3b8;padding:32px 0;font-style:italic}
+  .week-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer}
+  .week-primary{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+  .week-date{font-size:14px;font-weight:700;color:#0f766e;margin-bottom:4px}
+  .week-cals{font-size:30px;font-weight:800;color:#0f766e;line-height:1}
+  .week-cals-label{font-size:11px;color:#94a3b8;margin-top:2px}
+  .week-steps{font-size:24px;font-weight:800;color:#1e293b;text-align:right;line-height:1}
+  .week-steps-label{font-size:11px;color:#94a3b8;text-align:right;margin-top:2px}
+  .week-macros-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+  .macro-box{background:#f8fafc;border-radius:8px;padding:7px 10px;text-align:center}
+  .macro-box-val{font-size:14px;font-weight:700;color:#334155}
+  .macro-box-lbl{font-size:10px;color:#94a3b8}
+  .week-divider{border:none;border-top:1px solid #f1f5f9;margin:8px 0}
+  .week-detail{font-size:12px;padding:2px 0}
+  .week-exercise{color:#0369a1}
+  .week-symptoms{color:#b45309;font-style:italic}
+  .week-meds{color:#7c3aed}
+  .week-weight-badge{display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:4px 12px;font-size:14px;font-weight:700;color:#166534;margin-bottom:10px}
 
-  /* Modal */
-  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
-  .modal{background:white;border-radius:12px;padding:24px;width:100%;max-width:320px;text-align:center}
-  .modal p{font-weight:600;color:#1e293b;margin-bottom:16px}
-  .modal-btns{display:flex;gap:10px;justify-content:center}
-  .del-btn{padding:9px 18px;border:none;border-radius:8px;background:#ef4444;color:white;font-weight:600;font-size:14px}
+  /* Summary / Charts */
+  .chart-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:16px;position:relative}
+  .chart-card.primary{border:2px solid #0f766e;box-shadow:0 4px 16px rgba(15,118,110,0.1)}
+  .chart-title{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:2px}
+  .chart-subtitle{font-size:12px;color:#94a3b8;margin-bottom:14px}
+  .chart-wrap{position:relative;width:100%}
+  svg.chart{width:100%;overflow:visible}
 
-  /* Toast */
+  /* Tooltip */
+  .chart-tooltip{position:absolute;background:#1e293b;color:white;border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;z-index:10;transform:translate(-50%,-100%);margin-top:-8px}
+  .chart-tooltip.show{opacity:1}
+  .tooltip-label{font-weight:700;margin-bottom:3px;font-size:11px;opacity:0.7}
+  .tooltip-line{display:flex;align-items:center;gap:6px;margin-top:2px}
+  .tooltip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+  /* Legend */
+  .chart-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+  .legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b}
+  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+  /* Summary stats row */
+  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+  .stat-box{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}
+  .stat-val{font-size:18px;font-weight:800;color:#0f766e}
+  .stat-lbl{font-size:10px;color:#94a3b8;margin-top:2px}
+
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;z-index:200;pointer-events:none}
   #toast.show{opacity:1}
 </style>
 </head>
 <body>
-
 <div id="header">
-  <div>
-    <h1>Anna's Food Log</h1>
-    <p>Nutrition · Symptoms · Activity</p>
-  </div>
-  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-    <div class="tab-row">
-      <button class="tab on" id="tab-log"  onclick="setTab('log')">Daily</button>
-      <button class="tab off" id="tab-week" onclick="setTab('week')">Week</button>
-    </div>
-    <button class="export-btn" onclick="exportCSV()">⬇ CSV</button>
+  <div><h1>Anna's Food Log</h1><p>Nutrition · Symptoms · Activity</p></div>
+  <div class="tab-row">
+    <button class="tab on"  id="tab-log"     onclick="setTab('log')">Daily</button>
+    <button class="tab off" id="tab-week"    onclick="setTab('week')">Week</button>
+    <button class="tab off" id="tab-summary" onclick="setTab('summary')">Summary</button>
   </div>
 </div>
-
 <div id="content"></div>
 <div id="toast"></div>
-
 <script>
-// ── Data ─────────────────────────────────────────────────────────────────────
-const SEED_ENTRIES = [
-  {id:"s1", date:"2026-03-03",time:"09:00",type:"Drink",    description:"Okra water, 3 glasses",calories:"0–15",protein:"0",carbs:"0–3",fat:"0"},
-  {id:"s2", date:"2026-03-03",time:"10:00",type:"Drink",    description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s3", date:"2026-03-03",time:"11:30",type:"Breakfast",description:"Omelette: 2 eggs, 1 egg white, tomato, feta, olive oil spray",calories:"~260",protein:"~21",carbs:"~6",fat:"~19"},
-  {id:"s4", date:"2026-03-03",time:"11:30",type:"Drink",    description:"Nespresso coffee, milk, ½ tsp xylitol",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s5", date:"2026-03-03",time:"11:40",type:"Drink",    description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s6", date:"2026-03-03",time:"13:00",type:"Drink",    description:"Rooibos tea",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s7", date:"2026-03-03",time:"14:00",type:"Snack",    description:"Yoghurt (3 tbsp), honey, blueberries, small cheddar piece",calories:"~250",protein:"~9",carbs:"~28–32",fat:"~14"},
-  {id:"s8", date:"2026-03-03",time:"15:30",type:"Drink",    description:"Nespresso coffee, milk, ½ tsp xylitol",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s9", date:"2026-03-03",time:"16:00",type:"Drink",    description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s10",date:"2026-03-03",time:"18:00",type:"Drink",    description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s11",date:"2026-03-03",time:"19:00",type:"Dinner",   description:"GF spaghetti (maise & rice), meatballs, Grana Padano, side salad",calories:"~850–930",protein:"~42–50",carbs:"~105–125",fat:"~30–36"},
-  {id:"s12",date:"2026-03-04",time:"09:00",type:"Drink",    description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
-  {id:"s13",date:"2026-03-04",time:"10:45",type:"Drink",    description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s14",date:"2026-03-04",time:"11:30",type:"Drink",    description:"Coffee milk + xylitol",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s15",date:"2026-03-04",time:"12:00",type:"Drink",    description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s16",date:"2026-03-04",time:"12:30",type:"Lunch",    description:"Omelette, spinach, tomatoes, cottage cheese",calories:"~260",protein:"~23",carbs:"~5",fat:"~18"},
-  {id:"s17",date:"2026-03-04",time:"14:00",type:"Snack",    description:"4 Brazil nuts",calories:"~75",protein:"~2",carbs:"~2",fat:"~8"},
-  {id:"s18",date:"2026-03-04",time:"14:00",type:"Drink",    description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s19",date:"2026-03-04",time:"17:00",type:"Drink",    description:"Water (~750 ml gym)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s20",date:"2026-03-04",time:"18:00",type:"Snack",    description:"Wafer thin ham (5 slices)",calories:"~65",protein:"~11",carbs:"0",fat:"~2"},
-  {id:"s21",date:"2026-03-04",time:"19:00",type:"Dinner",   description:"Chicken thighs, salad, mozzarella, pesto, avo",calories:"~720–820",protein:"~55–65",carbs:"~8–12",fat:"~50–58"},
-  {id:"s22",date:"2026-03-04",time:"21:00",type:"Drink",    description:"Ginger tea",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s23",date:"2026-03-05",time:"09:00",type:"Drink",    description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
-  {id:"s24",date:"2026-03-05",time:"09:45",type:"Drink",    description:"Chai latte",calories:"~130",protein:"~3",carbs:"~20",fat:"~3"},
+// ── Seed Data ──────────────────────────────────────────────────────────────
+const SEED_ENTRIES=[
+  {id:"s1",date:"2026-03-03",time:"09:00",type:"Drink",description:"Okra water, 3 glasses",calories:"0–15",protein:"0",carbs:"0–3",fat:"0"},
+  {id:"s2",date:"2026-03-03",time:"10:00",type:"Drink",description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s3",date:"2026-03-03",time:"11:30",type:"Breakfast",description:"Omelette: 2 eggs, 1 egg white, tomato, feta, olive oil spray",calories:"~260",protein:"~21",carbs:"~6",fat:"~19"},
+  {id:"s4",date:"2026-03-03",time:"11:30",type:"Drink",description:"Nespresso coffee, milk, ½ tsp xylitol",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
+  {id:"s5",date:"2026-03-03",time:"11:40",type:"Drink",description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s6",date:"2026-03-03",time:"13:00",type:"Drink",description:"Rooibos tea",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s7",date:"2026-03-03",time:"14:00",type:"Snack",description:"Yoghurt (3 tbsp), honey, blueberries, small cheddar piece",calories:"~250",protein:"~9",carbs:"~28–32",fat:"~14"},
+  {id:"s8",date:"2026-03-03",time:"15:30",type:"Drink",description:"Nespresso coffee, milk, ½ tsp xylitol",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
+  {id:"s9",date:"2026-03-03",time:"16:00",type:"Drink",description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s10",date:"2026-03-03",time:"18:00",type:"Drink",description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s11",date:"2026-03-03",time:"19:00",type:"Dinner",description:"GF spaghetti (maise & rice), meatballs, Grana Padano, side salad",calories:"~850–930",protein:"~42–50",carbs:"~105–125",fat:"~30–36"},
+  {id:"s12",date:"2026-03-04",time:"09:00",type:"Drink",description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
+  {id:"s13",date:"2026-03-04",time:"10:45",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s14",date:"2026-03-04",time:"11:30",type:"Drink",description:"Coffee milk + xylitol",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
+  {id:"s15",date:"2026-03-04",time:"12:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s16",date:"2026-03-04",time:"12:30",type:"Lunch",description:"Omelette, spinach, tomatoes, cottage cheese",calories:"~260",protein:"~23",carbs:"~5",fat:"~18"},
+  {id:"s17",date:"2026-03-04",time:"14:00",type:"Snack",description:"4 Brazil nuts",calories:"~75",protein:"~2",carbs:"~2",fat:"~8"},
+  {id:"s18",date:"2026-03-04",time:"14:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s19",date:"2026-03-04",time:"17:00",type:"Drink",description:"Water (~750 ml gym)",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s20",date:"2026-03-04",time:"18:00",type:"Snack",description:"Wafer thin ham (5 slices)",calories:"~65",protein:"~11",carbs:"0",fat:"~2"},
+  {id:"s21",date:"2026-03-04",time:"19:00",type:"Dinner",description:"Chicken thighs, salad, mozzarella, pesto, avo",calories:"~720–820",protein:"~55–65",carbs:"~8–12",fat:"~50–58"},
+  {id:"s22",date:"2026-03-04",time:"21:00",type:"Drink",description:"Ginger tea",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s23",date:"2026-03-05",time:"09:00",type:"Drink",description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
+  {id:"s24",date:"2026-03-05",time:"09:45",type:"Drink",description:"Chai latte",calories:"~130",protein:"~3",carbs:"~20",fat:"~3"},
   {id:"s25",date:"2026-03-05",time:"11:00",type:"Breakfast",description:"Omelette, cottage cheese, ham, ketchup",calories:"~270",protein:"~28",carbs:"~4",fat:"~16"},
-  {id:"s26",date:"2026-03-05",time:"11:00",type:"Drink",    description:"Nespresso coffee",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s27",date:"2026-03-05",time:"13:00",type:"Drink",    description:"Water (~500 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s28",date:"2026-03-05",time:"14:00",type:"Snack",    description:"Steers chips",calories:"~380",protein:"~5",carbs:"~50",fat:"~20"},
-  {id:"s29",date:"2026-03-05",time:"17:00",type:"Snack",    description:"BBQ mini chicken fillet",calories:"~70",protein:"~11",carbs:"~2",fat:"~1"},
-  {id:"s30",date:"2026-03-05",time:"19:00",type:"Dinner",   description:"Lamb chops, broccoli, cheese sauce, salad",calories:"~550",protein:"~35",carbs:"~11",fat:"~40"},
-  {id:"s31",date:"2026-03-06",time:"09:00",type:"Drink",    description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
-  {id:"s32",date:"2026-03-06",time:"10:00",type:"Drink",    description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s33",date:"2026-03-06",time:"11:00",type:"Drink",    description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s34",date:"2026-03-06",time:"12:00",type:"Lunch",    description:"Small spaghetti & meatballs",calories:"~380",protein:"~32",carbs:"~22",fat:"~20"},
-  {id:"s35",date:"2026-03-06",time:"12:00",type:"Drink",    description:"Espresso milk + xylitol",calories:"~15",protein:"~1",carbs:"~1",fat:"0"},
-  {id:"s36",date:"2026-03-06",time:"14:00",type:"Snack",    description:"Mini chicken fillet",calories:"~50",protein:"~8",carbs:"~1",fat:"~1"},
-  {id:"s37",date:"2026-03-06",time:"14:00",type:"Drink",    description:"Espresso",calories:"~2",protein:"0",carbs:"0",fat:"0"},
-  {id:"s38",date:"2026-03-06",time:"14:00",type:"Drink",    description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s39",date:"2026-03-06",time:"19:00",type:"Dinner",   description:"Bao buns, ½ mozzarella, creamy chicken dish",calories:"~950–1,100",protein:"~60",carbs:"~70",fat:"~50"},
-  {id:"s40",date:"2026-03-06",time:"19:00",type:"Drink",    description:"3 white wine spritzers",calories:"~240",protein:"0",carbs:"~8",fat:"0"},
-  {id:"s41",date:"2026-03-07",time:"10:00",type:"Drink",    description:"Nespresso coffee",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s42",date:"2026-03-07",time:"11:30",type:"Drink",    description:"Ginger tea",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s43",date:"2026-03-07",time:"13:00",type:"Drink",    description:"Water (~1 L)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s44",date:"2026-03-07",time:"14:30",type:"Lunch",    description:"Chicken wrap",calories:"~350",protein:"~24",carbs:"~26",fat:"~16"},
-  {id:"s45",date:"2026-03-07",time:"16:00",type:"Drink",    description:"Chai latte",calories:"~190",protein:"~4",carbs:"~29",fat:"~5"},
-  {id:"s46",date:"2026-03-07",time:"19:00",type:"Dinner",   description:"Asian beef bowl",calories:"~550",protein:"~34",carbs:"~65",fat:"~16"},
-  {id:"s47",date:"2026-03-08",time:"09:00",type:"Drink",    description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
+  {id:"s26",date:"2026-03-05",time:"11:00",type:"Drink",description:"Nespresso coffee",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
+  {id:"s27",date:"2026-03-05",time:"13:00",type:"Drink",description:"Water (~500 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s28",date:"2026-03-05",time:"14:00",type:"Snack",description:"Steers chips",calories:"~380",protein:"~5",carbs:"~50",fat:"~20"},
+  {id:"s29",date:"2026-03-05",time:"17:00",type:"Snack",description:"BBQ mini chicken fillet",calories:"~70",protein:"~11",carbs:"~2",fat:"~1"},
+  {id:"s30",date:"2026-03-05",time:"19:00",type:"Dinner",description:"Lamb chops, broccoli, cheese sauce, salad",calories:"~550",protein:"~35",carbs:"~11",fat:"~40"},
+  {id:"s31",date:"2026-03-06",time:"09:00",type:"Drink",description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
+  {id:"s32",date:"2026-03-06",time:"10:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s33",date:"2026-03-06",time:"11:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s34",date:"2026-03-06",time:"12:00",type:"Lunch",description:"Small spaghetti & meatballs",calories:"~380",protein:"~32",carbs:"~22",fat:"~20"},
+  {id:"s35",date:"2026-03-06",time:"12:00",type:"Drink",description:"Espresso milk + xylitol",calories:"~15",protein:"~1",carbs:"~1",fat:"0"},
+  {id:"s36",date:"2026-03-06",time:"14:00",type:"Snack",description:"Mini chicken fillet",calories:"~50",protein:"~8",carbs:"~1",fat:"~1"},
+  {id:"s37",date:"2026-03-06",time:"14:00",type:"Drink",description:"Espresso",calories:"~2",protein:"0",carbs:"0",fat:"0"},
+  {id:"s38",date:"2026-03-06",time:"14:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s39",date:"2026-03-06",time:"19:00",type:"Dinner",description:"Bao buns, ½ mozzarella, creamy chicken dish",calories:"~950–1,100",protein:"~60",carbs:"~70",fat:"~50"},
+  {id:"s40",date:"2026-03-06",time:"19:00",type:"Drink",description:"3 white wine spritzers",calories:"~240",protein:"0",carbs:"~8",fat:"0"},
+  {id:"s41",date:"2026-03-07",time:"10:00",type:"Drink",description:"Nespresso coffee",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
+  {id:"s42",date:"2026-03-07",time:"11:30",type:"Drink",description:"Ginger tea",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s43",date:"2026-03-07",time:"13:00",type:"Drink",description:"Water (~1 L)",calories:"0",protein:"0",carbs:"0",fat:"0"},
+  {id:"s44",date:"2026-03-07",time:"14:30",type:"Lunch",description:"Chicken wrap",calories:"~350",protein:"~24",carbs:"~26",fat:"~16"},
+  {id:"s45",date:"2026-03-07",time:"16:00",type:"Drink",description:"Chai latte",calories:"~190",protein:"~4",carbs:"~29",fat:"~5"},
+  {id:"s46",date:"2026-03-07",time:"19:00",type:"Dinner",description:"Asian beef bowl",calories:"~550",protein:"~34",carbs:"~65",fat:"~16"},
+  {id:"s47",date:"2026-03-08",time:"09:00",type:"Drink",description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
   {id:"s48",date:"2026-03-08",time:"09:30",type:"Breakfast",description:"Chicken wrap",calories:"~350",protein:"~24",carbs:"~26",fat:"~16"},
-  {id:"s49",date:"2026-03-08",time:"12:00",type:"Snack",    description:"4 Woolworths mini chicken fillets",calories:"~200",protein:"~32",carbs:"~4",fat:"~4"},
-  {id:"s50",date:"2026-03-08",time:"12:00",type:"Drink",    description:"Chai latte",calories:"~190",protein:"~4",carbs:"~29",fat:"~5"},
-  {id:"s51",date:"2026-03-08",time:"14:30",type:"Lunch",    description:"Asian beef bowl",calories:"~550",protein:"~34",carbs:"~65",fat:"~16"},
-  {id:"s52",date:"2026-03-08",time:"18:00",type:"Snack",    description:"9 Woolworths chicken nuggets",calories:"~420",protein:"~24",carbs:"~26",fat:"~26"},
-  {id:"s53",date:"2026-03-09",time:"10:30",type:"Drink",    description:"Nespresso, xylitol, sugar-free almond milk",calories:"~10",protein:"0",carbs:"~1",fat:"0"},
-  {id:"s54",date:"2026-03-09",time:"12:00",type:"Drink",    description:"Nespresso, xylitol, sugar-free almond milk",calories:"~10",protein:"0",carbs:"~1",fat:"0"},
-  {id:"s55",date:"2026-03-09",time:"12:00",type:"Lunch",    description:"Omelette: 2 eggs, 1 egg white, ham (3 slices), cherry tomatoes, cottage cheese",calories:"~300",protein:"~32",carbs:"~4",fat:"~18"},
-  {id:"s56",date:"2026-03-09",time:"13:30",type:"Snack",    description:"3.5 Woolworths mini chicken fillets",calories:"~175",protein:"~28",carbs:"~3",fat:"~4"},
-  {id:"s57",date:"2026-03-09",time:"14:10",type:"Snack",    description:"4 small Brazil nuts",calories:"~75",protein:"~2",carbs:"~2",fat:"~8"},
+  {id:"s49",date:"2026-03-08",time:"12:00",type:"Snack",description:"4 Woolworths mini chicken fillets",calories:"~200",protein:"~32",carbs:"~4",fat:"~4"},
+  {id:"s50",date:"2026-03-08",time:"12:00",type:"Drink",description:"Chai latte",calories:"~190",protein:"~4",carbs:"~29",fat:"~5"},
+  {id:"s51",date:"2026-03-08",time:"14:30",type:"Lunch",description:"Asian beef bowl",calories:"~550",protein:"~34",carbs:"~65",fat:"~16"},
+  {id:"s52",date:"2026-03-08",time:"18:00",type:"Snack",description:"9 Woolworths chicken nuggets",calories:"~420",protein:"~24",carbs:"~26",fat:"~26"},
+  {id:"s53",date:"2026-03-09",time:"10:30",type:"Drink",description:"Nespresso, xylitol, sugar-free almond milk",calories:"~10",protein:"0",carbs:"~1",fat:"0"},
+  {id:"s54",date:"2026-03-09",time:"12:00",type:"Drink",description:"Nespresso, xylitol, sugar-free almond milk",calories:"~10",protein:"0",carbs:"~1",fat:"0"},
+  {id:"s55",date:"2026-03-09",time:"12:00",type:"Lunch",description:"Omelette: 2 eggs, 1 egg white, ham (3 slices), cherry tomatoes, cottage cheese",calories:"~300",protein:"~32",carbs:"~4",fat:"~18"},
+  {id:"s56",date:"2026-03-09",time:"13:30",type:"Snack",description:"3.5 Woolworths mini chicken fillets",calories:"~175",protein:"~28",carbs:"~3",fat:"~4"},
+  {id:"s57",date:"2026-03-09",time:"14:10",type:"Snack",description:"4 small Brazil nuts",calories:"~75",protein:"~2",carbs:"~2",fat:"~8"},
 ];
-
-const SEED_DAILY = {
-  "2026-03-03":{steps:"6000", exercise:"", symptoms:"Cold morning, headache 12:30, brain fog 14:30", meds:"Panado 19:30", cal:"~1,410–1,505",pro:"~74–82", carb:"~143–170",fat:"~65–71"},
-  "2026-03-04":{steps:"7315", exercise:"Treadmill incline walk, strength training", symptoms:"", meds:"", cal:"~1,145–1,265",pro:"~92–102",carb:"~17–25",  fat:"~79–87"},
-  "2026-03-05":{steps:"4536", exercise:"", symptoms:"", meds:"", cal:"~1,425–1,445",pro:"~83",    carb:"~89",     fat:"~81"},
-  "2026-03-06":{steps:"6864", exercise:"", symptoms:"Rash left breast, headache waking", meds:"", cal:"~1,637–1,787",pro:"~101",   carb:"~102",    fat:"~71"},
-  "2026-03-07":{steps:"13618",exercise:"Ran 5 km", symptoms:"Petechiae on stomach", meds:"", cal:"~1,115",      pro:"~63",    carb:"~122",    fat:"~38"},
-  "2026-03-08":{steps:"11197",exercise:"Zone 2 walk 5k", symptoms:"", meds:"", cal:"~1,710–1,730",pro:"~118",   carb:"~150",    fat:"~67"},
-  "2026-03-09":{steps:"",     exercise:"", symptoms:"", meds:"", cal:"~570",         pro:"~62",    carb:"~11",     fat:"~30"},
+const SEED_DAILY={
+  "2026-03-03":{steps:"6000",exercise:"",symptoms:"Cold morning, headache 12:30, brain fog 14:30",meds:"Panado 19:30",cal:"~1,410–1,505",pro:"~74–82",carb:"~143–170",fat:"~65–71"},
+  "2026-03-04":{steps:"7315",exercise:"Treadmill incline walk, strength training",symptoms:"",meds:"",cal:"~1,145–1,265",pro:"~92–102",carb:"~17–25",fat:"~79–87"},
+  "2026-03-05":{steps:"4536",exercise:"",symptoms:"",meds:"",cal:"~1,425–1,445",pro:"~83",carb:"~89",fat:"~81"},
+  "2026-03-06":{steps:"6864",exercise:"",symptoms:"Rash left breast, headache waking",meds:"",cal:"~1,637–1,787",pro:"~101",carb:"~102",fat:"~71"},
+  "2026-03-07":{steps:"13618",exercise:"Ran 5 km",symptoms:"Petechiae on stomach",meds:"",cal:"~1,115",pro:"~63",carb:"~122",fat:"~38"},
+  "2026-03-08":{steps:"11197",exercise:"Zone 2 walk 5k",symptoms:"",meds:"",cal:"~1,710–1,730",pro:"~118",carb:"~150",fat:"~67"},
+  "2026-03-09":{steps:"",exercise:"",symptoms:"",meds:"",cal:"~570",pro:"~62",carb:"~11",fat:"~30"},
+};
+// Weekly summaries keyed by week-start (Monday) YYYY-MM-DD
+// avgCal, avgSteps, weight are numbers for graphing; display strings kept separately
+const SEED_WEEKLY={
+  "2026-03-03":{
+    weight:null, weightDisplay:"",
+    avgCal:1371, avgCalDisplay:"~1,371",
+    avgSteps:7218, avgStepsDisplay:"~7,218",
+    avgPro:85,  avgProDisplay:"~85",
+    avgCarb:94, avgCarbDisplay:"~94",
+    avgFat:65,  avgFatDisplay:"~65",
+    exerciseDays:2, notes:""
+  },
 };
 
-const TYPE_META = {
-  Breakfast: {bg:"#fef9c3",border:"#ca8a04",text:"#854d0e"},
-  Lunch:     {bg:"#dcfce7",border:"#16a34a",text:"#14532d"},
-  Dinner:    {bg:"#ede9fe",border:"#7c3aed",text:"#4c1d95"},
-  Snack:     {bg:"#ffedd5",border:"#ea580c",text:"#7c2d12"},
-  Drink:     {bg:"#e0f2fe",border:"#0284c7",text:"#0c4a6e"},
+const TYPE_META={
+  Breakfast:{bg:"#fef9c3",border:"#ca8a04",text:"#854d0e"},
+  Lunch:{bg:"#dcfce7",border:"#16a34a",text:"#14532d"},
+  Dinner:{bg:"#ede9fe",border:"#7c3aed",text:"#4c1d95"},
+  Snack:{bg:"#ffedd5",border:"#ea580c",text:"#7c2d12"},
+  Drink:{bg:"#e0f2fe",border:"#0284c7",text:"#0c4a6e"},
   Supplement:{bg:"#fce7f3",border:"#db2777",text:"#831843"},
 };
-const TYPES = ["Breakfast","Lunch","Dinner","Snack","Drink","Supplement"];
+const TYPES=["Breakfast","Lunch","Dinner","Snack","Drink","Supplement"];
 
-// ── State ────────────────────────────────────────────────────────────────────
-let entries = [], daily = {}, dateIdx = 0, currentTab = "log";
-let editId = null, delId = null, formVisible = false, estimating = false;
+let entries=[],daily={},weekly={},dateIdx=0,weekIdx=0,currentTab="log";
 
-function load() {
-  try {
-    const e = localStorage.getItem("fl_entries");
-    const d = localStorage.getItem("fl_daily");
-    entries = e ? JSON.parse(e) : JSON.parse(JSON.stringify(SEED_ENTRIES));
-    daily   = d ? JSON.parse(d) : JSON.parse(JSON.stringify(SEED_DAILY));
-  } catch {
-    entries = JSON.parse(JSON.stringify(SEED_ENTRIES));
-    daily   = JSON.parse(JSON.stringify(SEED_DAILY));
+function load(){
+  try{
+    const e=localStorage.getItem("fl_e4"),d=localStorage.getItem("fl_d4"),w=localStorage.getItem("fl_w4");
+    entries=e?JSON.parse(e):JSON.parse(JSON.stringify(SEED_ENTRIES));
+    daily=d?JSON.parse(d):JSON.parse(JSON.stringify(SEED_DAILY));
+    weekly=w?JSON.parse(w):JSON.parse(JSON.stringify(SEED_WEEKLY));
+  }catch{
+    entries=JSON.parse(JSON.stringify(SEED_ENTRIES));
+    daily=JSON.parse(JSON.stringify(SEED_DAILY));
+    weekly=JSON.parse(JSON.stringify(SEED_WEEKLY));
   }
 }
-function save() {
-  try {
-    localStorage.setItem("fl_entries", JSON.stringify(entries));
-    localStorage.setItem("fl_daily",   JSON.stringify(daily));
-  } catch {}
-  showToast("Saved");
+function allDates(){return[...new Set(entries.map(e=>e.date))].sort();}
+function allWeeks(){return Object.keys(weekly).sort();}
+function selDate(){const d=allDates();return d[dateIdx]||d[0];}
+function selWeek(){const w=allWeeks();return w[weekIdx]||w[0];}
+function getInfo(){return daily[selDate()]||{steps:"",exercise:"",symptoms:"",meds:"",cal:"",pro:"",carb:"",fat:""};}
+function fmtDate(d){return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});}
+function fmtShort(d){return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});}
+function fmtWeek(d){
+  const s=new Date(d+"T12:00:00"),e=new Date(s);e.setDate(e.getDate()+6);
+  return s.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" – "+e.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 }
-function uid() { return "u" + Date.now() + Math.random().toString(36).slice(2,5); }
-function fmtDate(d) {
-  return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
-}
-function fmtDateShort(d) {
-  return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
-}
-function allDates() { return [...new Set(entries.map(e=>e.date))].sort(); }
-function selDate()  { const d = allDates(); return d[dateIdx] || d[0] || "2026-03-03"; }
-function getInfo()  { return daily[selDate()] || {steps:"",exercise:"",symptoms:"",meds:"",cal:"",pro:"",carb:"",fat:""}; }
+function fmtWeekShort(d){return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});}
+function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800);}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 1800);
-}
-
-// ── Tab ──────────────────────────────────────────────────────────────────────
-function setTab(tab) {
-  currentTab = tab;
-  document.getElementById("tab-log").className  = "tab " + (tab==="log"  ? "on":"off");
-  document.getElementById("tab-week").className = "tab " + (tab==="week" ? "on":"off");
+function setTab(tab){
+  currentTab=tab;
+  ["log","week","summary"].forEach(t=>document.getElementById("tab-"+t).className="tab "+(t===tab?"on":"off"));
   render();
 }
-
-// ── Render ───────────────────────────────────────────────────────────────────
-function render() {
-  const c = document.getElementById("content");
-  c.innerHTML = currentTab === "log" ? renderLog() : renderWeek();
-  attachEvents();
+function render(){
+  const c=document.getElementById("content");
+  if(currentTab==="log")c.innerHTML=renderLog();
+  else if(currentTab==="week")c.innerHTML=renderWeek();
+  else c.innerHTML=renderSummary();
+  if(currentTab==="summary") drawCharts();
 }
 
-function renderLog() {
-  const dates = allDates();
-  const date  = selDate();
-  const info  = getInfo();
-  const dayEntries = entries.filter(e=>e.date===date).sort((a,b)=>a.time.localeCompare(b.time));
-
-  // Group by type
-  const groups = TYPES.filter(t => dayEntries.some(e=>e.type===t)).map(type => {
-    const m = TYPE_META[type];
-    const rows = dayEntries.filter(e=>e.type===type).map(e => {
-      const macros = [
-        e.calories && e.calories!=="0" ? `<span class="macro-pill">🔥 ${e.calories} kcal</span>` : "",
-        e.protein  && e.protein!=="0"  ? `<span class="macro-pill">P ${e.protein}g</span>` : "",
-        e.carbs    && e.carbs!=="0"    ? `<span class="macro-pill">C ${e.carbs}g</span>` : "",
-        e.fat      && e.fat!=="0"      ? `<span class="macro-pill">F ${e.fat}g</span>` : "",
+// ── Daily Log ──────────────────────────────────────────────────────────────
+function renderLog(){
+  const dates=allDates(),date=selDate(),info=getInfo();
+  const dayEntries=entries.filter(e=>e.date===date).sort((a,b)=>a.time.localeCompare(b.time));
+  const groups=TYPES.filter(t=>dayEntries.some(e=>e.type===t)).map(type=>{
+    const m=TYPE_META[type];
+    const rows=dayEntries.filter(e=>e.type===type).map(e=>{
+      const pills=[
+        e.calories&&e.calories!=="0"?`<span class="macro-pill">🔥 ${esc(e.calories)} kcal</span>`:"",
+        e.protein&&e.protein!=="0"?`<span class="macro-pill">P ${esc(e.protein)}g</span>`:"",
+        e.carbs&&e.carbs!=="0"?`<span class="macro-pill">C ${esc(e.carbs)}g</span>`:"",
+        e.fat&&e.fat!=="0"?`<span class="macro-pill">F ${esc(e.fat)}g</span>`:"",
       ].join("");
-      return `<div class="entry-row">
-        <div class="entry-time">${e.time||"—"}</div>
-        <div class="entry-body">
-          <div class="entry-desc">${esc(e.description)}</div>
-          <div class="entry-macros">${macros}</div>
-        </div>
-        <div class="entry-actions">
-          <button class="icon-btn" onclick="openEdit('${e.id}')">✏️</button>
-          <button class="icon-btn" onclick="confirmDel('${e.id}')">🗑️</button>
-        </div>
-      </div>`;
+      return`<div class="entry-row"><div class="entry-time">${esc(e.time)||"—"}</div><div class="entry-body"><div class="entry-desc">${esc(e.description)}</div><div class="entry-macros">${pills}</div></div></div>`;
     }).join("");
-    return `<div class="meal-group">
-      <div class="meal-header" style="background:${m.bg};border-left-color:${m.border}">
-        <div class="meal-dot" style="background:${m.text}"></div>
-        <span class="meal-title">${type}</span>
-      </div>${rows}</div>`;
+    return`<div class="meal-group"><div class="meal-header" style="background:${m.bg};border-left-color:${m.border}"><div class="meal-dot" style="background:${m.text}"></div><span class="meal-title">${type}</span></div>${rows}</div>`;
   }).join("");
-
-  const form = formVisible ? renderForm() : "";
-
-  return `
-    <!-- Date nav -->
-    <div class="date-nav">
+  return`
+    <div class="nav-bar">
       <button class="arrow" onclick="prevDay()" ${dateIdx===0?"disabled":""}>‹</button>
-      <div class="date-center">
-        <div class="date-main">${fmtDate(date)}</div>
-        <div class="date-sub">Day ${dateIdx+1} of ${dates.length}</div>
-      </div>
+      <div class="nav-center"><div class="nav-main">${fmtDate(date)}</div><div class="nav-sub">Day ${dateIdx+1} of ${dates.length}</div></div>
       <button class="arrow" onclick="nextDay()" ${dateIdx>=dates.length-1?"disabled":""}>›</button>
     </div>
-
-    <!-- Totals banner -->
     <div class="banner">
       <div class="banner-label">Daily Totals</div>
       <div class="banner-grid">
         ${[{k:"cal",l:"Calories"},{k:"pro",l:"Protein g"},{k:"carb",l:"Carbs g"},{k:"fat",l:"Fat g"}].map(({k,l})=>`
-        <div class="banner-col">
-          <div class="banner-val">${info[k]||"—"}</div>
-          <div class="banner-lbl">${l}</div>
-          <input class="banner-input" value="${esc(info[k]||"")}" placeholder="add" data-field="${k}" onchange="updateInfo('${k}',this.value)"/>
-        </div>`).join("")}
+        <div class="banner-col"><div class="banner-val">${esc(info[k])||"—"}</div><div class="banner-lbl">${l}</div></div>`).join("")}
       </div>
     </div>
-
-    <!-- Steps + Exercise -->
-    <div class="meta-grid">
-      <div class="meta-field">
-        <label>👟 Steps</label>
-        <input value="${esc(info.steps||"")}" placeholder="e.g. 8500" onchange="updateInfo('steps',this.value)"/>
-      </div>
-      <div class="meta-field">
-        <label>🏃 Exercise</label>
-        <input value="${esc(info.exercise||"")}" placeholder="e.g. 5km run" onchange="updateInfo('exercise',this.value)"/>
-      </div>
+    <div class="meta-row">
+      <div class="meta-box"><div class="meta-box-label">👟 Steps</div><div class="${info.steps?"meta-box-value":"meta-box-empty"}">${info.steps?Number(info.steps).toLocaleString():"Not logged"}</div></div>
+      <div class="meta-box"><div class="meta-box-label">🏃 Exercise</div><div class="${info.exercise?"meta-box-value":"meta-box-empty"}">${info.exercise?esc(info.exercise):"Rest day"}</div></div>
     </div>
-
-    <!-- Symptoms + Meds -->
-    <div class="meta-grid" style="margin-bottom:14px">
-      <div class="meta-field">
-        <label>🩺 Symptoms</label>
-        <input value="${esc(info.symptoms||"")}" placeholder="e.g. headache, fatigue" onchange="updateInfo('symptoms',this.value)"/>
-      </div>
-      <div class="meta-field">
-        <label>💊 Medication</label>
-        <input value="${esc(info.meds||"")}" placeholder="e.g. Panado 19:30" onchange="updateInfo('meds',this.value)"/>
-      </div>
+    <div class="meta-row" style="margin-bottom:14px">
+      <div class="meta-box"><div class="meta-box-label">🩺 Symptoms</div><div class="${info.symptoms?"meta-box-value":"meta-box-empty"}">${info.symptoms?esc(info.symptoms):"None"}</div></div>
+      <div class="meta-box"><div class="meta-box-label">💊 Medication</div><div class="${info.meds?"meta-box-value":"meta-box-empty"}">${info.meds?esc(info.meds):"None"}</div></div>
     </div>
-
-    <!-- Entries -->
-    ${dayEntries.length===0 ? '<div class="empty">No entries for this day yet.</div>' : groups}
-
-    <button class="add-btn" onclick="openAdd()">+ Add Entry</button>
-    ${form}
-
-    <!-- Delete modal -->
-    ${delId ? `<div class="modal-overlay">
-      <div class="modal">
-        <p>Delete this entry?</p>
-        <div class="modal-btns">
-          <button class="cancel-btn" onclick="cancelDel()">Cancel</button>
-          <button class="del-btn" onclick="doDelete()">Delete</button>
-        </div>
-      </div>
-    </div>` : ""}
-  `;
+    ${dayEntries.length===0?'<div class="empty">No entries for this day yet.</div>':groups}`;
 }
 
-function renderForm() {
-  const editing = editId !== null;
-  const entry = editing ? entries.find(e=>e.id===editId) : {time:"",type:"Breakfast",description:"",calories:"",protein:"",carbs:"",fat:""};
-  return `
-    <div class="form-card" id="entry-form">
-      <div class="form-title">${editing ? "Edit Entry" : "New Entry"}</div>
-      <div class="form-grid2">
-        <div class="form-field">
-          <label>Time</label>
-          <input type="time" id="f-time" value="${entry.time||""}"/>
+// ── Week View ──────────────────────────────────────────────────────────────
+function renderWeek(){
+  const weeks=allWeeks();
+  if(!weeks.length)return'<div class="empty">No weekly data yet.</div>';
+  const wk=selWeek(),wi=weekly[wk]||{};
+  const wStart=new Date(wk+"T12:00:00"),wEnd=new Date(wStart);wEnd.setDate(wEnd.getDate()+6);
+  const wkDates=allDates().filter(d=>{const dt=new Date(d+"T12:00:00");return dt>=wStart&&dt<=wEnd;});
+  const dayCards=wkDates.map(d=>{
+    const di=daily[d]||{};
+    return`<div class="week-card" onclick="goToDay('${d}')">
+      <div class="week-primary">
+        <div><div class="week-date">${fmtShort(d)}</div>
+          ${di.cal?`<div class="week-cals">${esc(di.cal)}</div><div class="week-cals-label">kcal</div>`:"<div style='font-size:12px;color:#94a3b8'>Calories not logged</div>"}
         </div>
-        <div class="form-field">
-          <label>Type</label>
-          <select id="f-type">
-            ${TYPES.map(t=>`<option ${entry.type===t?"selected":""}>${t}</option>`).join("")}
-          </select>
-        </div>
+        <div>${di.steps?`<div class="week-steps">${Number(di.steps).toLocaleString()}</div><div class="week-steps-label">steps</div>`:"<div style='font-size:12px;color:#94a3b8;text-align:right'>Steps not logged</div>"}</div>
       </div>
-      <div class="form-field" style="margin-bottom:4px">
-        <label>Description *</label>
-        <div class="desc-row">
-          <input id="f-desc" value="${esc(entry.description||"")}" placeholder="What did you eat or drink?"/>
-          <button class="estimate-btn" id="est-btn" onclick="doEstimate()" ${estimating?"disabled":""}>
-            ${estimating ? "⏳…" : "✨ Estimate"}
-          </button>
-        </div>
-        <div class="desc-hint">Type description then tap Estimate to auto-fill macros</div>
-      </div>
-      <div class="form-grid4">
-        ${["calories","protein","carbs","fat"].map(k=>`
-        <div class="form-field">
-          <label>${k}</label>
-          <input id="f-${k}" value="${esc(entry[k]||"")}" placeholder="~"/>
-        </div>`).join("")}
-      </div>
-      <div class="form-actions">
-        <button class="cancel-btn" onclick="closeForm()">Cancel</button>
-        <button class="save-btn" onclick="saveEntry()">${editing?"Update":"Save"}</button>
-      </div>
-    </div>`;
-}
-
-function renderWeek() {
-  const dates = allDates();
-  if (!dates.length) return '<div class="empty">No data yet.</div>';
-  return `<div style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:14px">Week at a Glance</div>` +
-  dates.map((d,i) => {
-    const di = daily[d] || {};
-    const meals = entries.filter(e=>e.date===d && e.type!=="Drink");
-    const chips = meals.slice(0,4).map(e=>{
-      const m = TYPE_META[e.type]||TYPE_META.Snack;
-      return `<span class="meal-chip" style="border-color:${m.border};color:${m.text}">${esc(e.description.length>38?e.description.slice(0,38)+"…":e.description)}</span>`;
-    }).join("") + (meals.length>4 ? `<span class="more-badge">+${meals.length-4} more</span>` : "");
-    return `<div class="week-card" onclick="goToDay(${i})">
-      <div class="week-top">
-        <span class="week-date">${fmtDateShort(d)}</span>
-        ${di.steps ? `<span class="steps-badge">👟 ${Number(di.steps).toLocaleString()}</span>` : ""}
-      </div>
-      ${di.cal ? `<div class="week-macros"><span>🔥 ${di.cal} kcal</span>${di.pro?`<span>· P ${di.pro}g</span>`:""}${di.carb?`<span>· C ${di.carb}g</span>`:""}${di.fat?`<span>· F ${di.fat}g</span>`:""}</div>` : ""}
-      ${di.exercise ? `<div class="week-exercise">🏃 ${esc(di.exercise)}</div>` : ""}
-      ${di.symptoms ? `<div class="week-symptoms">🩺 ${esc(di.symptoms)}</div>` : ""}
-      ${di.meds     ? `<div class="week-meds">💊 ${esc(di.meds)}</div>` : ""}
-      <div class="meal-chips">${chips}</div>
+      ${(di.pro||di.carb||di.fat)?`<div class="week-macros-row">
+        ${di.pro?`<div class="macro-box"><div class="macro-box-val">${esc(di.pro)}g</div><div class="macro-box-lbl">Protein</div></div>`:""}
+        ${di.carb?`<div class="macro-box"><div class="macro-box-val">${esc(di.carb)}g</div><div class="macro-box-lbl">Carbs</div></div>`:""}
+        ${di.fat?`<div class="macro-box"><div class="macro-box-val">${esc(di.fat)}g</div><div class="macro-box-lbl">Fat</div></div>`:""}
+      </div>`:""}
+      ${(di.exercise||di.symptoms||di.meds)?`<hr class="week-divider"/>
+        ${di.exercise?`<div class="week-detail week-exercise">🏃 ${esc(di.exercise)}</div>`:""}
+        ${di.symptoms?`<div class="week-detail week-symptoms">🩺 ${esc(di.symptoms)}</div>`:""}
+        ${di.meds?`<div class="week-detail week-meds">💊 ${esc(di.meds)}</div>`:""}
+      `:""}
     </div>`;
   }).join("");
+  return`
+    <div class="nav-bar">
+      <button class="arrow" onclick="prevWeek()" ${weekIdx===0?"disabled":""}>‹</button>
+      <div class="nav-center"><div class="nav-main">${fmtWeek(wk)}</div><div class="nav-sub">Week ${weekIdx+1} of ${weeks.length}</div></div>
+      <button class="arrow" onclick="nextWeek()" ${weekIdx>=weeks.length-1?"disabled":""}>›</button>
+    </div>
+    ${wi.weight?`<div style="margin-bottom:10px"><span class="week-weight-badge">⚖️ ${esc(wi.weight)} kg this week</span></div>`:""}
+    ${dayCards||'<div class="empty">No daily entries found for this week.</div>'}`;
 }
 
-// ── Actions ──────────────────────────────────────────────────────────────────
-function prevDay() { if(dateIdx>0){ dateIdx--; formVisible=false; editId=null; render(); } }
-function nextDay() { const d=allDates(); if(dateIdx<d.length-1){ dateIdx++; formVisible=false; editId=null; render(); } }
-function goToDay(i) { dateIdx=i; setTab("log"); }
+// ── Summary ────────────────────────────────────────────────────────────────
+function renderSummary(){
+  const weeks=allWeeks();
+  if(!weeks.length)return'<div class="empty">No weekly data yet.</div>';
+  const latest=weekly[weeks[weeks.length-1]]||{};
+  return`
+    <div style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:4px">Health Summary</div>
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:16px">${weeks.length} week${weeks.length>1?"s":""} of data</div>
 
-function updateInfo(field, val) {
-  const d = selDate();
-  if (!daily[d]) daily[d] = {steps:"",exercise:"",symptoms:"",meds:"",cal:"",pro:"",carb:"",fat:""};
-  daily[d][field] = val;
-  save();
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-val">${latest.avgCalDisplay||"—"}</div><div class="stat-lbl">Avg Calories</div></div>
+      <div class="stat-box"><div class="stat-val">${latest.avgStepsDisplay||"—"}</div><div class="stat-lbl">Avg Steps</div></div>
+      <div class="stat-box"><div class="stat-val">${latest.exerciseDays||"—"}</div><div class="stat-lbl">Exercise Days</div></div>
+    </div>
+
+    <!-- Chart 1: Weight — primary, large -->
+    <div class="chart-card primary">
+      <div class="chart-title">⚖️ Weight</div>
+      <div class="chart-subtitle">Weekly weight in kg</div>
+      <div class="chart-wrap">
+        <svg class="chart" id="chart-weight" height="180"></svg>
+        <div class="chart-tooltip" id="tt-weight"></div>
+      </div>
+    </div>
+
+    <!-- Chart 2: Calories + Steps -->
+    <div class="chart-card">
+      <div class="chart-title">🔥 Calories &amp; 👟 Steps</div>
+      <div class="chart-subtitle">Weekly averages</div>
+      <div class="chart-wrap">
+        <svg class="chart" id="chart-calsteps" height="150"></svg>
+        <div class="chart-tooltip" id="tt-calsteps"></div>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#0f766e"></div>Avg Calories</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#0284c7"></div>Avg Steps ÷ 10</div>
+      </div>
+    </div>
+
+    <!-- Chart 3: Macros -->
+    <div class="chart-card">
+      <div class="chart-title">🥗 Macros</div>
+      <div class="chart-subtitle">Average weekly protein, carbs &amp; fat (g)</div>
+      <div class="chart-wrap">
+        <svg class="chart" id="chart-macros" height="150"></svg>
+        <div class="chart-tooltip" id="tt-macros"></div>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Protein</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Carbs</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Fat</div>
+      </div>
+    </div>`;
 }
 
-function openAdd()  { editId=null; formVisible=true; render(); setTimeout(()=>{ document.getElementById("entry-form")?.scrollIntoView({behavior:"smooth"}); },60); }
-function openEdit(id) { editId=id; formVisible=true; render(); setTimeout(()=>{ document.getElementById("entry-form")?.scrollIntoView({behavior:"smooth"}); },60); }
-function closeForm()  { editId=null; formVisible=false; render(); }
+// ── Chart Drawing ──────────────────────────────────────────────────────────
+function drawCharts(){
+  const weeks=allWeeks();
+  if(weeks.length<1)return;
+  const wData=weeks.map(w=>({...weekly[w],wk:w}));
+  const labels=weeks.map(w=>fmtWeekShort(w));
 
-function saveEntry() {
-  const desc = document.getElementById("f-desc")?.value?.trim();
-  if (!desc) { showToast("Please add a description"); return; }
-  const entry = {
-    id:    editId || uid(),
-    date:  selDate(),
-    time:  document.getElementById("f-time")?.value || "",
-    type:  document.getElementById("f-type")?.value || "Snack",
-    description: desc,
-    calories: document.getElementById("f-calories")?.value || "",
-    protein:  document.getElementById("f-protein")?.value  || "",
-    carbs:    document.getElementById("f-carbs")?.value    || "",
-    fat:      document.getElementById("f-fat")?.value      || "",
-  };
-  if (editId) {
-    entries = entries.map(e => e.id===editId ? entry : e);
-  } else {
-    entries.push(entry);
-    // Ensure date is in allDates
-    if (!daily[entry.date]) daily[entry.date] = {steps:"",exercise:"",symptoms:"",meds:"",cal:"",pro:"",carb:"",fat:""};
-    // Jump to that date
-    const idx = allDates().indexOf(entry.date);
-    if (idx>=0) dateIdx = idx;
+  // Chart 1: Weight
+  const wtVals=wData.map(w=>w.weight||null);
+  drawLineChart("chart-weight","tt-weight",labels,[
+    {values:wtVals,color:"#0f766e",label:"Weight (kg)",strokeWidth:3,dotSize:6}
+  ],180,true);
+
+  // Chart 2: Calories + Steps/10
+  const calVals=wData.map(w=>w.avgCal||null);
+  const stepVals=wData.map(w=>w.avgSteps?w.avgSteps/10:null);
+  drawLineChart("chart-calsteps","tt-calsteps",labels,[
+    {values:calVals, color:"#0f766e",label:"Avg Calories",strokeWidth:2,dotSize:5,
+     tooltipFmt:(v)=>v?Math.round(v)+" kcal":null},
+    {values:stepVals,color:"#0284c7",label:"Avg Steps",strokeWidth:2,dotSize:5,
+     tooltipFmt:(v,i)=>wData[i]?.avgSteps?Math.round(wData[i].avgSteps).toLocaleString()+" steps":null},
+  ],150,false);
+
+  // Chart 3: Macros
+  const proVals=wData.map(w=>w.avgPro||null);
+  const carbVals=wData.map(w=>w.avgCarb||null);
+  const fatVals=wData.map(w=>w.avgFat||null);
+  drawLineChart("chart-macros","tt-macros",labels,[
+    {values:proVals, color:"#dc2626",label:"Protein",strokeWidth:2,dotSize:4,tooltipFmt:(v)=>v?v+"g":null},
+    {values:carbVals,color:"#d97706",label:"Carbs",  strokeWidth:2,dotSize:4,tooltipFmt:(v)=>v?v+"g":null},
+    {values:fatVals, color:"#7c3aed",label:"Fat",    strokeWidth:2,dotSize:4,tooltipFmt:(v)=>v?v+"g":null},
+  ],150,false);
+}
+
+function drawLineChart(svgId,ttId,labels,series,height,isLarge){
+  const svg=document.getElementById(svgId);
+  if(!svg)return;
+  const W=svg.parentElement.clientWidth||320;
+  svg.setAttribute("viewBox",`0 0 ${W} ${height}`);
+  const pad={l:36,r:16,t:16,b:36};
+  const iW=W-pad.l-pad.r, iH=height-pad.t-pad.b;
+  const n=labels.length;
+  if(n===0)return;
+
+  // Flatten all values to get min/max
+  const allVals=series.flatMap(s=>s.values).filter(v=>v!==null&&v!==undefined);
+  if(!allVals.length)return;
+  let minV=Math.min(...allVals), maxV=Math.max(...allVals);
+  const range=maxV-minV||1;
+  minV=minV-range*0.1; maxV=maxV+range*0.1;
+
+  function xPos(i){return pad.l+(n===1?iW/2:i*(iW/(n-1)));}
+  function yPos(v){return pad.t+iH-(((v-minV)/(maxV-minV))*iH);}
+
+  let html="";
+
+  // Grid lines
+  for(let i=0;i<=4;i++){
+    const y=pad.t+(iH/4)*i;
+    const val=maxV-((maxV-minV)/4)*i;
+    html+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>`;
+    html+=`<text x="${pad.l-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#94a3b8">${Math.round(val)}</text>`;
   }
-  formVisible=false; editId=null;
-  save(); render();
-}
 
-function confirmDel(id) { delId=id; render(); }
-function cancelDel()    { delId=null; render(); }
-function doDelete()     { entries=entries.filter(e=>e.id!==delId); delId=null; save(); render(); }
-
-async function doEstimate() {
-  const desc = document.getElementById("f-desc")?.value?.trim();
-  if (!desc) return;
-  estimating = true;
-  const btn = document.getElementById("est-btn");
-  if (btn) { btn.disabled=true; btn.textContent="⏳ Estimating…"; }
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:200,
-        messages:[{role:"user",content:`Estimate calories and macros for: "${desc}". Reply ONLY with JSON, no markdown:\n{"calories":"~XXX","protein":"~XX","carbs":"~XX","fat":"~XX"}\nUse ~ prefix. Use ranges like ~200–250 where appropriate.`}]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.[0]?.text || "";
-    const parsed = JSON.parse(text.replace(/```json|```/g,"").trim());
-    if (document.getElementById("f-calories")) {
-      document.getElementById("f-calories").value = parsed.calories || "";
-      document.getElementById("f-protein").value  = parsed.protein  || "";
-      document.getElementById("f-carbs").value    = parsed.carbs    || "";
-      document.getElementById("f-fat").value      = parsed.fat      || "";
-      showToast("Macros estimated ✓");
-    }
-  } catch(e) {
-    showToast("Estimate failed — fill manually");
-  }
-  estimating = false;
-  if (document.getElementById("est-btn")) {
-    document.getElementById("est-btn").disabled = false;
-    document.getElementById("est-btn").textContent = "✨ Estimate";
-  }
-}
-
-function exportCSV() {
-  const dates = allDates();
-  const rows = [["Date","Day","Time","Type","Description","Calories (est.)","Protein (g)","Carbs (g)","Fat (g)","Steps","Exercise","Symptoms","Medication"]];
-  dates.forEach(d => {
-    const di = daily[d] || {};
-    const dt = new Date(d+"T12:00:00");
-    const dateStr = dt.toLocaleDateString("en-GB");
-    const dayStr  = dt.toLocaleDateString("en-GB",{weekday:"short"});
-    entries.filter(e=>e.date===d).sort((a,b)=>a.time.localeCompare(b.time))
-      .forEach(e => rows.push([dateStr,dayStr,e.time,e.type,e.description,e.calories,e.protein,e.carbs,e.fat,"","","",""]));
-    rows.push([dateStr+" TOTAL","","","","",di.cal||"",di.pro||"",di.carb||"",di.fat||"",di.steps||"",di.exercise||"",di.symptoms||"",di.meds||""]);
-    rows.push([]);
+  // X labels
+  labels.forEach((l,i)=>{
+    html+=`<text x="${xPos(i)}" y="${height-6}" text-anchor="middle" font-size="9" fill="#94a3b8">${l}</text>`;
   });
-  const csv = rows.map(r=>r.map(v=>`"${String(v||"").replace(/"/g,'""')}"`).join(",")).join("\r\n");
-  const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href=url; a.download="Anna_FoodLog.csv";
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+  // Lines + dots per series
+  series.forEach(s=>{
+    // Line path (skip null gaps)
+    let path="";
+    s.values.forEach((v,i)=>{
+      if(v===null||v===undefined)return;
+      const x=xPos(i),y=yPos(v);
+      // Find if previous non-null exists
+      const prevIdx=s.values.slice(0,i).map((vv,ii)=>vv!==null?ii:-1).filter(ii=>ii>=0).pop();
+      if(prevIdx===undefined||prevIdx===null||s.values[prevIdx]===null){
+        path+=`M ${x} ${y} `;
+      } else {
+        path+=`L ${x} ${y} `;
+      }
+    });
+    if(path)html+=`<path d="${path}" fill="none" stroke="${s.color}" stroke-width="${s.strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    // Dots — interactive
+    s.values.forEach((v,i)=>{
+      if(v===null||v===undefined)return;
+      const x=xPos(i),y=yPos(v);
+      const ds=s.dotSize||(isLarge?6:4);
+      // Build tooltip content
+      const lines=series.map(ss=>{
+        const sv=ss.values[i];
+        if(sv===null||sv===undefined)return"";
+        const fmt=ss.tooltipFmt?ss.tooltipFmt(sv,i):String(sv);
+        if(!fmt)return"";
+        return`<div class="tooltip-line"><div class="tooltip-dot" style="background:${ss.color}"></div>${esc(ss.label)}: ${esc(fmt)}</div>`;
+      }).join("");
+      const ttContent=`<div class="tooltip-label">${esc(labels[i])}</div>${lines}`;
+      html+=`<circle cx="${x}" cy="${y}" r="${ds}" fill="${s.color}" stroke="white" stroke-width="2"
+        style="cursor:pointer"
+        onmouseenter="showTT('${ttId}',this,${x},${y},'${ttContent.replace(/'/g,"&#39;")}')"
+        ontouchstart="showTT('${ttId}',this,${x},${y},'${ttContent.replace(/'/g,"&#39;")}')"
+        onmouseleave="hideTT('${ttId}')"
+      />`;
+    });
+  });
+
+  svg.innerHTML=html;
 }
 
-function esc(str) {
-  return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function showTT(ttId,dot,x,y,html){
+  const tt=document.getElementById(ttId);
+  if(!tt)return;
+  const wrap=tt.parentElement;
+  const wrapRect=wrap.getBoundingClientRect();
+  const svg=wrap.querySelector("svg");
+  const svgRect=svg.getBoundingClientRect();
+  const scaleX=svgRect.width/(parseFloat(svg.getAttribute("viewBox").split(" ")[2])||svgRect.width);
+  const scaleY=svgRect.height/(parseFloat(svg.getAttribute("viewBox").split(" ")[3])||svgRect.height);
+  const px=(svgRect.left-wrapRect.left)+x*scaleX;
+  const py=(svgRect.top-wrapRect.top)+y*scaleY;
+  tt.innerHTML=html;
+  tt.style.left=px+"px";
+  tt.style.top=py+"px";
+  tt.classList.add("show");
+}
+function hideTT(ttId){
+  const tt=document.getElementById(ttId);
+  if(tt)tt.classList.remove("show");
 }
 
-function attachEvents() {}
+// ── Navigation ─────────────────────────────────────────────────────────────
+function prevDay(){if(dateIdx>0){dateIdx--;render();}}
+function nextDay(){const d=allDates();if(dateIdx<d.length-1){dateIdx++;render();}}
+function prevWeek(){if(weekIdx>0){weekIdx--;render();}}
+function nextWeek(){const w=allWeeks();if(weekIdx<w.length-1){weekIdx++;render();}}
+function goToDay(d){const idx=allDates().indexOf(d);if(idx>=0){dateIdx=idx;setTab("log");}}
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────────────────────────
 load();
-// Start on most recent date
-const d = allDates();
-dateIdx = d.length > 0 ? d.length - 1 : 0;
+const _d=allDates();dateIdx=_d.length>0?_d.length-1:0;
+const _w=allWeeks();weekIdx=_w.length>0?_w.length-1:0;
 render();
 </script>
 </body>
