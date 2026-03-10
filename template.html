@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anna's Food Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --burgundy: #60212E;
+  --burgundy-dark: #4a1922;
+  --burgundy-mid: #521d28;
+  --burgundy-light: #7a2d3d;
+  --steel: #69ACC2;
+  --steel-light: #8fc4d6;
+  --sand: #D8D1BD;
+  --sand-light: #ece8df;
+  --white: #FFFFFF;
+  --muted: rgba(255,255,255,0.5);
+  --dim: rgba(255,255,255,0.72);
+  --card: rgba(255,255,255,0.055);
+  --card-border: rgba(255,255,255,0.09);
+  --cal-goal: 1700;
+  --step-goal: 10000;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--burgundy-dark);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── HEADER ─── */
+header {
+  background: var(--burgundy);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 16px 18px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.35);
+}
+.header-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.logo em { color: var(--steel); font-style: normal; }
+.build-time {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+}
+.tabs {
+  display: flex;
+}
+.tab {
+  padding: 9px 18px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.18s;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  user-select: none;
+}
+.tab.active { color: var(--white); border-bottom-color: var(--steel); }
+.tab:hover:not(.active) { color: var(--dim); }
+
+/* ─── MAIN ─── */
+main { padding: 18px 15px 48px; max-width: 620px; margin: 0 auto; }
+.view { display: none; animation: fadeIn 0.22s ease; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ─── NAV ARROWS ─── */
+.day-nav, .week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 8px;
+}
+.nav-btn {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  color: var(--white);
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.11); }
+.nav-btn:disabled { opacity: 0.28; cursor: default; pointer-events: none; }
+.nav-center { flex: 1; text-align: center; }
+.nav-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  font-weight: 700;
+  display: block;
+}
+.nav-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+  display: block;
+}
+
+/* ─── SUMMARY CARD ─── */
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 15px;
+  margin-bottom: 14px;
+}
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.metric {
+  background: rgba(255,255,255,0.038);
+  border-radius: 11px;
+  padding: 11px 12px;
+  position: relative;
+  border-left: 2.5px solid transparent;
+}
+.metric.good { border-left-color: #66bb6a; }
+.metric.bad  { border-left-color: #ef5350; }
+.metric.info { border-left-color: var(--steel); }
+.metric-label {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.metric-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1;
+}
+.metric-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.metric-icon {
+  position: absolute;
+  top: 9px; right: 10px;
+  font-size: 15px;
+}
+.progress-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  margin-top: 7px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  max-width: 100%;
+}
+.fill-good  { background: #66bb6a; }
+.fill-bad   { background: #ef5350; }
+.fill-steel { background: var(--steel); }
+
+/* ─── MACRO PILLS ─── */
+.macros-row {
+  display: flex;
+  gap: 8px;
+}
+.mpill {
+  flex: 1;
+  background: rgba(255,255,255,0.048);
+  border-radius: 9px;
+  padding: 8px 6px;
+  text-align: center;
+}
+.mpill-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 3px;
+}
+.mpill-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+}
+.mpill.p .mpill-val { color: #81c784; }
+.mpill.c .mpill-val { color: #ffb74d; }
+.mpill.f .mpill-val { color: #ce93d8; }
+
+/* ─── INFO ITEMS ─── */
+.info-strip { display: flex; flex-direction: column; gap: 7px; margin-bottom: 15px; }
+.info-item {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 10px 13px;
+  font-size: 13px;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  line-height: 1.45;
+}
+.ii-icon { flex-shrink: 0; margin-top: 1px; }
+.ii-body { color: var(--dim); }
+.ii-body strong { color: var(--white); font-weight: 500; }
+
+/* ─── MEAL LIST ─── */
+.section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  margin-bottom: 9px;
+  margin-top: 4px;
+}
+.meal-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  border-left: 3px solid transparent;
+}
+.meal-card.t-Breakfast  { border-left-color: #ffd54f; }
+.meal-card.t-Lunch      { border-left-color: #81c784; }
+.meal-card.t-Dinner     { border-left-color: #ce93d8; }
+.meal-card.t-Snack      { border-left-color: #ffb74d; }
+.meal-card.t-Drink      { border-left-color: var(--steel); }
+.meal-card.t-Supplement { border-left-color: #f48fb1; }
+.meal-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.meal-desc { font-size: 13.5px; color: var(--white); flex: 1; line-height: 1.35; }
+.meal-cal  {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.meal-bottom { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.meal-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+.type-chip {
+  font-size: 9.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.t-Breakfast  .type-chip { background: rgba(255,213,79,0.13); color: #ffd54f; }
+.t-Lunch      .type-chip { background: rgba(129,199,132,0.13); color: #81c784; }
+.t-Dinner     .type-chip { background: rgba(206,147,216,0.13); color: #ce93d8; }
+.t-Snack      .type-chip { background: rgba(255,183,77,0.13); color: #ffb74d; }
+.t-Drink      .type-chip { background: rgba(105,172,194,0.13); color: var(--steel); }
+.t-Supplement .type-chip { background: rgba(244,143,177,0.13); color: #f48fb1; }
+.mtag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--dim);
+}
+
+/* ─── EMPTY ─── */
+.empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+.empty-icon { font-size: 30px; margin-bottom: 10px; }
+.empty-text { font-size: 14px; }
+
+/* ─── WEEKLY VIEW ─── */
+.week-summary {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 15px;
+  margin-bottom: 18px;
+}
+.week-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.wstat {
+  background: rgba(255,255,255,0.038);
+  border-radius: 9px;
+  padding: 10px 7px;
+  text-align: center;
+}
+.wstat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 17px;
+  font-weight: 500;
+  display: block;
+  line-height: 1.2;
+}
+.wstat-val.good { color: #66bb6a; }
+.wstat-val.bad  { color: #ef5350; }
+.wstat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  display: block;
+  margin-top: 3px;
+}
+
+/* Daily cards in weekly view */
+.daily-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 14px 15px;
+  margin-bottom: 10px;
+}
+.daily-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.daily-date-block { }
+.daily-dayname {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+.daily-datestr {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.daily-badges { display: flex; gap: 6px; }
+.goal-badge {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-family: 'DM Mono', monospace;
+}
+.goal-badge.good { background: rgba(102,187,106,0.15); color: #66bb6a; }
+.goal-badge.bad  { background: rgba(239,83,80,0.15);   color: #ef5350; }
+.goal-badge.neutral { background: rgba(105,172,194,0.15); color: var(--steel); }
+.daily-macros { display: flex; gap: 7px; margin-bottom: 9px; }
+.daily-macros .mpill { padding: 6px 5px; }
+.daily-macros .mpill-val { font-size: 13px; }
+.daily-extras { display: flex; flex-direction: column; gap: 5px; }
+.daily-extra-item {
+  font-size: 12px;
+  color: var(--dim);
+  display: flex;
+  gap: 7px;
+}
+.dei { flex-shrink: 0; }
+
+/* ─── TRENDS VIEW ─── */
+.trend-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 14px 15px;
+  margin-bottom: 12px;
+}
+.trend-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.trend-week-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+.trend-weight {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--steel);
+}
+.trend-bars { display: flex; flex-direction: column; gap: 9px; margin-bottom: 14px; }
+.tbar { }
+.tbar-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.tbar-label { font-size: 11px; color: var(--dim); }
+.tbar-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+.tbar-track {
+  height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.tbar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  max-width: 100%;
+}
+
+/* ─── CALENDAR GRID ─── */
+.cal-section { margin-top: 24px; }
+.cal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.cal-months { display: flex; flex-direction: column; gap: 16px; }
+.cal-month { }
+.cal-month-name {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 3px;
+}
+.cal-wd {
+  text-align: center;
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 0;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.cal-day {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  cursor: default;
+  transition: transform 0.1s;
+}
+.cal-day:hover { transform: scale(1.2); }
+.cal-day.empty { background: transparent; }
+.cal-day.future { background: rgba(255,255,255,0.04); color: var(--muted); }
+.cal-day.no-data { background: rgba(255,255,255,0.07); color: var(--muted); }
+.cal-day.both { background: rgba(102,187,106,0.22); color: #81c784; }
+.cal-day.cal-only { background: rgba(255,183,77,0.2); color: #ffb74d; }
+.cal-day.steps-only { background: rgba(105,172,194,0.2); color: var(--steel); }
+.cal-day.neither { background: rgba(239,83,80,0.18); color: #ef5350; }
+
+.cal-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.cal-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--dim);
+}
+.cal-leg-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+}
+
+/* ─── NO DATA MSG ─── */
+.no-data-msg {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 13px;
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">Anna's <em>Food Log</em></div>
+    <div class="build-time" id="buildTime"></div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-view="daily">Daily</div>
+    <div class="tab" data-view="weekly">Weekly</div>
+    <div class="tab" data-view="trends">Trends</div>
+  </div>
+</header>
+
+<main>
+  <!-- ─── DAILY VIEW ─── -->
+  <div class="view active" id="view-daily">
+    <div class="day-nav">
+      <button class="nav-btn" id="dayPrev">&#8592;</button>
+      <div class="nav-center">
+        <span class="nav-title" id="dayTitle"></span>
+        <span class="nav-sub" id="daySubtitle"></span>
+      </div>
+      <button class="nav-btn" id="dayNext">&#8594;</button>
+    </div>
+    <div id="dailyContent"></div>
+  </div>
+
+  <!-- ─── WEEKLY VIEW ─── -->
+  <div class="view" id="view-weekly">
+    <div class="week-nav">
+      <button class="nav-btn" id="weekPrev">&#8592;</button>
+      <div class="nav-center">
+        <span class="nav-title" id="weekTitle"></span>
+        <span class="nav-sub" id="weekSubtitle"></span>
+      </div>
+      <button class="nav-btn" id="weekNext">&#8594;</button>
+    </div>
+    <div id="weeklyContent"></div>
+  </div>
+
+  <!-- ─── TRENDS VIEW ─── -->
+  <div class="view" id="view-trends">
+    <div id="trendsContent"></div>
+  </div>
+</main>
+
+<script>
+// ─── INJECT DATA ───
+const RAW = __NOTION_DATA__;
+const BUILD_TIME = '__BUILD_TIME__';
+
+// ─── SETUP ───
+document.getElementById('buildTime').textContent =
+  BUILD_TIME !== '__BUILD_TIME__'
+    ? 'Updated ' + new Date(BUILD_TIME).toLocaleDateString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+    : '';
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('view-' + tab.dataset.view).classList.add('active');
+  });
+});
+
+// ─── HELPERS ───
+function parseNum(s) {
+  if (!s) return null;
+  const n = parseFloat(String(s).replace(/[^0-9.]/g, ''));
+  return isNaN(n) ? null : n;
+}
+
+function fmtDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
+function shortDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function dayName(dateStr) {
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long' });
+}
+
+function progressBar(pct, cls) {
+  return `<div class="progress-bar"><div class="progress-fill ${cls}" style="width:${Math.min(100,pct)}%"></div></div>`;
+}
+
+// ─── DATA PREP ───
+const entries = RAW.entries || [];
+const daily   = RAW.daily   || {};
+const weekly  = RAW.weekly  || {};
+
+// Get sorted unique dates
+const allDates = [...new Set(entries.map(e => e.date))].sort();
+// Also include daily info dates not in entries
+Object.keys(daily).forEach(d => { if (!allDates.includes(d)) allDates.push(d); });
+allDates.sort();
+
+// ─── DAILY VIEW ───
+let dayIdx = allDates.length - 1; // start on most recent
+
+function renderDaily() {
+  if (allDates.length === 0) {
+    document.getElementById('dailyContent').innerHTML = '<div class="empty"><div class="empty-icon">🥗</div><div class="empty-text">No entries yet</div></div>';
+    return;
+  }
+
+  const date = allDates[dayIdx];
+  const d = daily[date] || {};
+  const dayEntries = entries.filter(e => e.date === date).sort((a,b) => (a.time||'').localeCompare(b.time||''));
+
+  document.getElementById('dayTitle').textContent = new Date(date + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+  document.getElementById('daySubtitle').textContent = new Date(date + 'T12:00:00').getFullYear();
+
+  document.getElementById('dayPrev').disabled = dayIdx <= 0;
+  document.getElementById('dayNext').disabled = dayIdx >= allDates.length - 1;
+
+  // Totals
+  const totalCal   = parseNum(d.cal);
+  const totalSteps = parseNum(d.steps);
+  const totalPro   = parseNum(d.pro);
+  const totalCarb  = parseNum(d.carb);
+  const totalFat   = parseNum(d.fat);
+
+  const calGood   = totalCal !== null && totalCal <= 1700;
+  const stepsGood = totalSteps !== null && totalSteps >= 10000;
+
+  let html = '';
+
+  // Summary
+  html += `<div class="summary-card">`;
+  html += `<div class="metrics-grid">`;
+
+  // Calories
+  if (totalCal !== null) {
+    const pct = (totalCal / 1700) * 100;
+    html += `<div class="metric ${calGood ? 'good' : 'bad'}">
+      <div class="metric-label">Calories</div>
+      <div class="metric-val">${Math.round(totalCal)}</div>
+      <div class="metric-sub">Goal: under 1,700</div>
+      <div class="metric-icon">${calGood ? '✅' : '❌'}</div>
+      ${progressBar(pct, calGood ? 'fill-good' : 'fill-bad')}
+    </div>`;
+  } else {
+    html += `<div class="metric info"><div class="metric-label">Calories</div><div class="metric-val" style="font-size:16px;color:var(--muted)">—</div></div>`;
+  }
+
+  // Steps
+  if (totalSteps !== null) {
+    const pct = (totalSteps / 10000) * 100;
+    html += `<div class="metric ${stepsGood ? 'good' : 'bad'}">
+      <div class="metric-label">Steps</div>
+      <div class="metric-val">${totalSteps.toLocaleString()}</div>
+      <div class="metric-sub">Goal: 10,000+</div>
+      <div class="metric-icon">${stepsGood ? '✅' : '❌'}</div>
+      ${progressBar(pct, stepsGood ? 'fill-good' : 'fill-steel')}
+    </div>`;
+  } else {
+    html += `<div class="metric info"><div class="metric-label">Steps</div><div class="metric-val" style="font-size:16px;color:var(--muted)">—</div></div>`;
+  }
+
+  html += `</div>`; // metrics-grid
+
+  // Macros
+  html += `<div class="macros-row">
+    <div class="mpill p"><span class="mpill-label">Protein</span><span class="mpill-val">${totalPro !== null ? Math.round(totalPro)+'g' : '—'}</span></div>
+    <div class="mpill c"><span class="mpill-label">Carbs</span><span class="mpill-val">${totalCarb !== null ? Math.round(totalCarb)+'g' : '—'}</span></div>
+    <div class="mpill f"><span class="mpill-label">Fat</span><span class="mpill-val">${totalFat !== null ? Math.round(totalFat)+'g' : '—'}</span></div>
+  </div>`;
+
+  html += `</div>`; // summary-card
+
+  // Info strip
+  const infoItems = [];
+  if (d.exercise) infoItems.push(`<div class="info-item"><span class="ii-icon">🏃</span><div class="ii-body"><strong>Exercise:</strong> ${d.exercise}</div></div>`);
+  if (d.meds)     infoItems.push(`<div class="info-item"><span class="ii-icon">💊</span><div class="ii-body"><strong>Medication:</strong> ${d.meds}</div></div>`);
+  if (d.symptoms) infoItems.push(`<div class="info-item"><span class="ii-icon">🩺</span><div class="ii-body"><strong>Symptoms:</strong> ${d.symptoms}</div></div>`);
+  if (infoItems.length) html += `<div class="info-strip">${infoItems.join('')}</div>`;
+
+  // Meals
+  if (dayEntries.length > 0) {
+    html += `<div class="section-label">Meals &amp; food</div>`;
+    dayEntries.forEach(e => {
+      const macros = [];
+      if (e.protein) macros.push(`<span class="mtag">P ${e.protein}g</span>`);
+      if (e.carbs)   macros.push(`<span class="mtag">C ${e.carbs}g</span>`);
+      if (e.fat)     macros.push(`<span class="mtag">F ${e.fat}g</span>`);
+      html += `<div class="meal-card t-${e.type || 'Snack'}">
+        <div class="meal-top">
+          <div class="meal-desc">${e.description || '—'}</div>
+          <div class="meal-cal">${e.calories ? e.calories + ' kcal' : ''}</div>
+        </div>
+        <div class="meal-bottom">
+          ${e.time ? `<span class="meal-time">${e.time}</span>` : ''}
+          <span class="type-chip">${e.type || ''}</span>
+          ${macros.join('')}
+        </div>
+      </div>`;
+    });
+  } else {
+    html += `<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-text">No meals logged for this day</div></div>`;
+  }
+
+  document.getElementById('dailyContent').innerHTML = html;
+}
+
+document.getElementById('dayPrev').addEventListener('click', () => { dayIdx--; renderDaily(); });
+document.getElementById('dayNext').addEventListener('click', () => { dayIdx++; renderDaily(); });
+
+// ─── WEEKLY VIEW ───
+const weekKeys = Object.keys(weekly).sort();
+// Also build weeks from daily data
+const dailyDates = Object.keys(daily).sort();
+function getWeekStart(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().slice(0, 10);
+}
+const allWeekStarts = [...new Set(allDates.map(getWeekStart))].sort();
+let weekIdx = allWeekStarts.length - 1;
+
+function renderWeekly() {
+  if (allWeekStarts.length === 0) {
+    document.getElementById('weeklyContent').innerHTML = '<div class="no-data-msg">No data available</div>';
+    return;
+  }
+
+  const ws = allWeekStarts[weekIdx];
+  const we = new Date(ws + 'T12:00:00');
+  we.setDate(we.getDate() + 6);
+  const weStr = we.toISOString().slice(0, 10);
+
+  document.getElementById('weekTitle').textContent =
+    new Date(ws + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short' }) + ' – ' +
+    we.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  document.getElementById('weekSubtitle').textContent = 'Week of ' + new Date(ws + 'T12:00:00').toLocaleDateString('en-GB', { month:'long' });
+
+  document.getElementById('weekPrev').disabled = weekIdx <= 0;
+  document.getElementById('weekNext').disabled = weekIdx >= allWeekStarts.length - 1;
+
+  // Find matching weekly summary
+  const wData = weekly[ws] || weekly[Object.keys(weekly).find(k => k >= ws && k <= weStr)] || null;
+
+  // Days in this week
+  const weekDays = allDates.filter(d => d >= ws && d <= weStr);
+
+  let calGoalDays = 0, stepGoalDays = 0, exerciseDays = 0;
+  weekDays.forEach(d => {
+    const di = daily[d] || {};
+    const c = parseNum(di.cal); const s = parseNum(di.steps);
+    if (c !== null && c <= 1700) calGoalDays++;
+    if (s !== null && s >= 10000) stepGoalDays++;
+    if (di.exercise) exerciseDays++;
+  });
+
+  let html = '';
+
+  // Week summary bar
+  html += `<div class="week-summary">`;
+  if (wData && wData.weight) {
+    html += `<div style="text-align:center;font-family:'DM Mono',monospace;font-size:13px;color:var(--steel);margin-bottom:10px;">⚖️ ${wData.weight} kg</div>`;
+  }
+  html += `<div class="week-stats">`;
+  html += `<div class="wstat"><span class="wstat-val">${wData && wData.avgCal ? Math.round(wData.avgCal) : '—'}</span><span class="wstat-label">Avg Cal</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val">${wData && wData.avgSteps ? Math.round(wData.avgSteps).toLocaleString() : '—'}</span><span class="wstat-label">Avg Steps</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val ${calGoalDays >= 4 ? 'good' : 'bad'}">${calGoalDays}/7</span><span class="wstat-label">Cal Goal Days</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val ${stepGoalDays >= 4 ? 'good' : 'bad'}">${stepGoalDays}/7</span><span class="wstat-label">Step Goal Days</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val">${exerciseDays}</span><span class="wstat-label">Exercise Days</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val" style="color:#81c784">${wData && wData.avgPro ? Math.round(wData.avgPro)+'g' : '—'}</span><span class="wstat-label">Avg Protein</span></div>`;
+  html += `</div>`; // week-stats
+  html += `</div>`; // week-summary
+
+  // Daily cards
+  weekDays.forEach(date => {
+    const d = daily[date] || {};
+    const cal = parseNum(d.cal);
+    const steps = parseNum(d.steps);
+    const pro = parseNum(d.pro);
+    const carb = parseNum(d.carb);
+    const fat = parseNum(d.fat);
+    const calOk = cal !== null && cal <= 1700;
+    const stepsOk = steps !== null && steps >= 10000;
+
+    html += `<div class="daily-card">
+      <div class="daily-card-header">
+        <div class="daily-date-block">
+          <div class="daily-dayname">${dayName(date)}</div>
+          <div class="daily-datestr">${shortDate(date)}</div>
+        </div>
+        <div class="daily-badges">
+          ${cal !== null ? `<span class="goal-badge ${calOk ? 'good' : 'bad'}">${Math.round(cal)} kcal</span>` : ''}
+          ${steps !== null ? `<span class="goal-badge ${stepsOk ? 'good' : 'neutral'}">${steps.toLocaleString()} 👟</span>` : ''}
+        </div>
+      </div>
+      <div class="daily-macros">
+        <div class="mpill p"><span class="mpill-label">Protein</span><span class="mpill-val">${pro !== null ? Math.round(pro)+'g' : '—'}</span></div>
+        <div class="mpill c"><span class="mpill-label">Carbs</span><span class="mpill-val">${carb !== null ? Math.round(carb)+'g' : '—'}</span></div>
+        <div class="mpill f"><span class="mpill-label">Fat</span><span class="mpill-val">${fat !== null ? Math.round(fat)+'g' : '—'}</span></div>
+      </div>
+      <div class="daily-extras">
+        ${d.exercise ? `<div class="daily-extra-item"><span class="dei">🏃</span>${d.exercise}</div>` : ''}
+        ${d.meds     ? `<div class="daily-extra-item"><span class="dei">💊</span>${d.meds}</div>` : ''}
+        ${d.symptoms ? `<div class="daily-extra-item"><span class="dei">🩺</span>${d.symptoms}</div>` : ''}
+      </div>
+    </div>`;
+  });
+
+  if (weekDays.length === 0) html += '<div class="no-data-msg">No data for this week</div>';
+
+  document.getElementById('weeklyContent').innerHTML = html;
+}
+
+document.getElementById('weekPrev').addEventListener('click', () => { weekIdx--; renderWeekly(); });
+document.getElementById('weekNext').addEventListener('click', () => { weekIdx++; renderWeekly(); });
+
+// ─── TRENDS VIEW ───
+function renderTrends() {
+  let html = '';
+
+  // Weekly trend cards
+  allWeekStarts.slice().reverse().forEach(ws => {
+    const we = new Date(ws + 'T12:00:00');
+    we.setDate(we.getDate() + 6);
+    const weStr = we.toISOString().slice(0, 10);
+    const wData = weekly[ws] || null;
+    const weekDays = allDates.filter(d => d >= ws && d <= weStr);
+    if (weekDays.length === 0 && !wData) return;
+
+    let calGoal = 0, stepGoal = 0, exDays = 0;
+    weekDays.forEach(d => {
+      const di = daily[d] || {};
+      const c = parseNum(di.cal); const s = parseNum(di.steps);
+      if (c !== null && c <= 1700) calGoal++;
+      if (s !== null && s >= 10000) stepGoal++;
+      if (di.exercise) exDays++;
+    });
+
+    const label = new Date(ws + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short' }) + ' – ' +
+      we.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+
+    html += `<div class="trend-card">
+      <div class="trend-card-header">
+        <span class="trend-week-label">${label}</span>
+        ${wData && wData.weight ? `<span class="trend-weight">⚖️ ${wData.weight} kg</span>` : ''}
+      </div>
+      <div class="trend-bars">`;
+
+    if (wData && wData.avgCal) {
+      const pct = (wData.avgCal / 1700) * 100;
+      const ok = wData.avgCal <= 1700;
+      html += `<div class="tbar">
+        <div class="tbar-header"><span class="tbar-label">Avg Calories</span><span class="tbar-val">${Math.round(wData.avgCal)} / 1,700</span></div>
+        <div class="tbar-track"><div class="tbar-fill ${ok ? 'fill-good' : 'fill-bad'}" style="width:${Math.min(100,pct)}%"></div></div>
+      </div>`;
+    }
+
+    if (wData && wData.avgSteps) {
+      const pct = (wData.avgSteps / 10000) * 100;
+      const ok = wData.avgSteps >= 10000;
+      html += `<div class="tbar">
+        <div class="tbar-header"><span class="tbar-label">Avg Steps</span><span class="tbar-val">${Math.round(wData.avgSteps).toLocaleString()} / 10,000</span></div>
+        <div class="tbar-track"><div class="tbar-fill ${ok ? 'fill-good' : 'fill-steel'}" style="width:${Math.min(100,pct)}%"></div></div>
+      </div>`;
+    }
+
+    if (weekDays.length > 0) {
+      html += `<div class="tbar">
+        <div class="tbar-header"><span class="tbar-label">Calorie Goal Days</span><span class="tbar-val">${calGoal} / 7</span></div>
+        <div class="tbar-track"><div class="tbar-fill ${calGoal >= 4 ? 'fill-good' : 'fill-bad'}" style="width:${(calGoal/7)*100}%"></div></div>
+      </div>
+      <div class="tbar">
+        <div class="tbar-header"><span class="tbar-label">Step Goal Days</span><span class="tbar-val">${stepGoal} / 7</span></div>
+        <div class="tbar-track"><div class="tbar-fill ${stepGoal >= 4 ? 'fill-good' : 'fill-steel'}" style="width:${(stepGoal/7)*100}%"></div></div>
+      </div>`;
+    }
+
+    html += `</div>`; // trend-bars
+
+    // Macro row
+    if (wData && (wData.avgPro || wData.avgCarb || wData.avgFat)) {
+      html += `<div class="macros-row">
+        <div class="mpill p"><span class="mpill-label">Avg Protein</span><span class="mpill-val">${wData.avgPro ? Math.round(wData.avgPro)+'g' : '—'}</span></div>
+        <div class="mpill c"><span class="mpill-label">Avg Carbs</span><span class="mpill-val">${wData.avgCarb ? Math.round(wData.avgCarb)+'g' : '—'}</span></div>
+        <div class="mpill f"><span class="mpill-label">Avg Fat</span><span class="mpill-val">${wData.avgFat ? Math.round(wData.avgFat)+'g' : '—'}</span></div>
+      </div>`;
+    }
+
+    html += `</div>`; // trend-card
+  });
+
+  // ─── CALENDAR ───
+  html += `<div class="cal-section">
+    <div class="cal-title">Year at a glance</div>`;
+
+  const today = new Date();
+  const year = today.getFullYear();
+
+  // Build date status map
+  const dateStatus = {};
+  allDates.forEach(d => {
+    const di = daily[d] || {};
+    const c = parseNum(di.cal);
+    const s = parseNum(di.steps);
+    const calOk   = c !== null && c <= 1700;
+    const stepsOk = s !== null && s >= 10000;
+    const hasData = entries.some(e => e.date === d) || Object.keys(di).some(k => di[k]);
+
+    if (!hasData && c === null && s === null) { dateStatus[d] = 'no-data'; return; }
+    if (calOk && stepsOk) dateStatus[d] = 'both';
+    else if (calOk)       dateStatus[d] = 'cal-only';
+    else if (stepsOk)     dateStatus[d] = 'steps-only';
+    else                  dateStatus[d] = 'neither';
+  });
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  html += `<div class="cal-months">`;
+
+  for (let m = 0; m < 12; m++) {
+    const firstDay = new Date(year, m, 1);
+    const lastDay  = new Date(year, m+1, 0);
+    const startDow = firstDay.getDay(); // 0=Sun
+    const startOffset = startDow === 0 ? 6 : startDow - 1; // Mon=0
+
+    html += `<div class="cal-month">
+      <div class="cal-month-name">${months[m]} ${year}</div>
+      <div class="cal-weekdays">
+        ${['Mo','Tu','We','Th','Fr','Sa','Su'].map(d => `<div class="cal-wd">${d}</div>`).join('')}
+      </div>
+      <div class="cal-grid">`;
+
+    for (let i = 0; i < startOffset; i++) html += `<div class="cal-day empty"></div>`;
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const dateStr = `${year}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const cellDate = new Date(year, m, day);
+      const isFuture = cellDate > today;
+      const status = dateStatus[dateStr];
+
+      let cls = 'no-data';
+      if (isFuture) cls = 'future';
+      else if (status) cls = status;
+
+      html += `<div class="cal-day ${cls}" title="${dateStr}">${day}</div>`;
+    }
+
+    html += `</div></div>`; // cal-grid, cal-month
+  }
+
+  html += `</div>`; // cal-months
+
+  html += `<div class="cal-legend">
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(102,187,106,0.22)"></div>Both goals ✓</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(255,183,77,0.2)"></div>Cal goal only</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(105,172,194,0.2)"></div>Steps only</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(239,83,80,0.18)"></div>Neither</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(255,255,255,0.07)"></div>No data</div>
+  </div>`;
+
+  html += `</div>`; // cal-section
+
+  document.getElementById('trendsContent').innerHTML = html;
+}
+
+// ─── INIT ───
+renderDaily();
+renderWeekly();
+renderTrends();
+</script>
+</body>
+</html>
