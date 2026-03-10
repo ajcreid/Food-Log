@@ -3,7 +3,7 @@ name: Update Food Log
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '*/5 * * * *'
 
 jobs:
   build:
