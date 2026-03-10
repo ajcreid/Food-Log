@@ -587,7 +587,16 @@ document.querySelectorAll('.tab').forEach(tab => {
 // ─── HELPERS ───
 function parseNum(s) {
   if (!s) return null;
-  const n = parseFloat(String(s).replace(/[^0-9.]/g, ''));
+  // Remove ~ and spaces, normalise en-dash and escaped hyphens
+  const clean = String(s).replace(/~/g, '').replace(/\\-/g, '-').replace(/,/g, '').trim();
+  // Handle ranges like "1410–1505" or "74-82" — take midpoint
+  const rangeSep = clean.match(/^([0-9.]+)\s*[–—-]\s*([0-9.]+)$/);
+  if (rangeSep) {
+    const a = parseFloat(rangeSep[1]);
+    const b = parseFloat(rangeSep[2]);
+    return isNaN(a) || isNaN(b) ? null : (a + b) / 2;
+  }
+  const n = parseFloat(clean.replace(/[^0-9.]/g, ''));
   return isNaN(n) ? null : n;
 }
 
