@@ -19,13 +19,11 @@
   .tab.on{background:white;color:#0f766e}
   .tab.off{background:rgba(255,255,255,0.18);color:white}
   #content{max-width:680px;margin:0 auto;padding:14px 14px 80px}
-
-  /* Loading */
   .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;color:#64748b}
   .spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#0f766e;border-radius:50%;animation:spin .8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .error-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:12px;padding:16px;color:#dc2626;font-size:14px;margin:20px 0}
-
+  .error-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:12px;padding:16px;color:#dc2626;font-size:14px;margin:20px 0;line-height:1.5}
+  .retry-btn{display:block;margin:12px auto 0;padding:10px 24px;background:#0f766e;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600}
   .nav-bar{display:flex;align-items:center;gap:10;margin-bottom:14px}
   .arrow{width:40px;height:40px;border-radius:50%;border:1px solid #cbd5e1;background:white;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .arrow:disabled{opacity:0.25;cursor:default}
@@ -55,8 +53,6 @@
   .entry-macros{display:flex;flex-wrap:wrap;gap:5px}
   .macro-pill{font-size:11px;background:#f1f5f9;color:#64748b;padding:2px 7px;border-radius:5px}
   .empty{text-align:center;color:#94a3b8;padding:32px 0;font-style:italic}
-
-  /* Week cards */
   .week-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer}
   .week-primary{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
   .week-date{font-size:14px;font-weight:700;color:#0f766e;margin-bottom:4px}
@@ -74,8 +70,6 @@
   .week-symptoms{color:#b45309;font-style:italic}
   .week-meds{color:#7c3aed}
   .week-weight-badge{display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:4px 12px;font-size:14px;font-weight:700;color:#166534;margin-bottom:10px}
-
-  /* Summary charts */
   .chart-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:16px}
   .chart-card.primary{border:2px solid #0f766e;box-shadow:0 4px 20px rgba(15,118,110,0.12)}
   .chart-title{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:2px}
@@ -89,14 +83,12 @@
   .stat-box{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}
   .stat-val{font-size:18px;font-weight:800;color:#0f766e}
   .stat-lbl{font-size:10px;color:#94a3b8;margin-top:2px}
-
   #chart-tt{position:fixed;background:#1e293b;color:white;border-radius:10px;padding:10px 14px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,0.3)}
   #chart-tt.show{opacity:1}
   .tt-label{font-size:11px;opacity:0.65;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px}
   .tt-row{display:flex;align-items:center;gap:7px;margin-top:3px}
   .tt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
   .tt-val{font-weight:700}
-
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;z-index:200;pointer-events:none}
   #toast.show{opacity:1}
 </style>
@@ -113,13 +105,18 @@
 <div id="content"><div class="loading"><div class="spinner"></div><div>Loading your food log...</div></div></div>
 <div id="chart-tt"></div>
 <div id="toast"></div>
-
 <script>
 // ── Config ─────────────────────────────────────────────────────────────────
-const TOKEN = "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";
-const DB_ENTRIES  = "12f7117a-b097-43b7-a38e-bdec15bd6080";
-const DB_DAILY    = "d114a85d-19e9-4168-911b-3da1de68c305";
-const DB_WEEKLY   = "761fdcae-fd0b-4c05-b21a-1295719c4195";
+const TOKEN        = "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";
+const DB_ENTRIES   = "12f7117ab09743b7a38ebdec15bd6080";
+const DB_DAILY     = "d114a85d19e94168911b3da1de68c305";
+const DB_WEEKLY    = "761fdcaefd0b4c05b21a1295719c4195";
+
+// Public CORS proxies — tried in order until one works
+const PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+];
 
 const ALL_WEEKS = ["2026-03-03","2026-03-10","2026-03-17","2026-03-24","2026-03-31","2026-04-07","2026-04-14","2026-04-21","2026-04-28","2026-05-05","2026-05-12","2026-05-19","2026-05-26","2026-06-02","2026-06-09","2026-06-16","2026-06-23","2026-06-30","2026-07-07","2026-07-14","2026-07-21","2026-07-28","2026-08-04","2026-08-11","2026-08-18","2026-08-25","2026-09-01","2026-09-08","2026-09-15","2026-09-22","2026-09-29","2026-10-06","2026-10-13","2026-10-20","2026-10-27","2026-11-03","2026-11-10","2026-11-17","2026-11-24","2026-12-01","2026-12-08","2026-12-15","2026-12-22","2026-12-29"];
 
@@ -133,144 +130,127 @@ const TYPE_META={
 };
 const TYPES=["Breakfast","Lunch","Dinner","Snack","Drink","Supplement"];
 
-// ── State ──────────────────────────────────────────────────────────────────
 let entries=[], daily={}, weekly={}, dateIdx=0, weekIdx=0, currentTab="log";
+let workingProxy = 0;
 
-// ── Notion API ─────────────────────────────────────────────────────────────
-async function notionQuery(dbId, filter=null, sorts=null){
-  const body = {};
-  if(filter) body.filter = filter;
-  if(sorts)  body.sorts  = sorts;
-  body.page_size = 100;
+// ── Notion API via CORS proxy ───────────────────────────────────────────────
+async function notionPost(path, body){
+  const notionUrl = `https://api.notion.com${path}`;
+  const reqBody   = JSON.stringify(body||{});
 
-  let results = [];
-  let cursor  = null;
+  for(let i = 0; i < PROXIES.length; i++){
+    const idx = (workingProxy + i) % PROXIES.length;
+    try {
+      const res = await fetch(PROXIES[idx](notionUrl), {
+        method:"POST",
+        headers:{
+          "Authorization":"Bearer "+TOKEN,
+          "Notion-Version":"2022-06-28",
+          "Content-Type":"application/json",
+          "x-requested-with":"XMLHttpRequest"
+        },
+        body: reqBody
+      });
+      if(res.ok){
+        workingProxy = idx; // remember what worked
+        return await res.json();
+      }
+    } catch(e){ /* try next proxy */ }
+  }
+  throw new Error("All proxies failed — check your connection and try again.");
+}
+
+async function queryDB(dbId){
+  let results=[], cursor=null;
   do {
+    const body = {page_size:100};
     if(cursor) body.start_cursor = cursor;
-    const res = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
-      method:"POST",
-      headers:{
-        "Authorization":"Bearer "+TOKEN,
-        "Notion-Version":"2022-06-28",
-        "Content-Type":"application/json"
-      },
-      body: JSON.stringify(body)
-    });
-    if(!res.ok) throw new Error(`Notion API error ${res.status}`);
-    const data = await res.json();
-    results = results.concat(data.results);
-    cursor = data.has_more ? data.next_cursor : null;
+    const data = await notionPost(`/v1/databases/${dbId}/query`, body);
+    results = results.concat(data.results||[]);
+    cursor  = data.has_more ? data.next_cursor : null;
   } while(cursor);
   return results;
 }
 
-function getProp(page, name){
-  const p = page.properties[name];
+function prop(page, name){
+  const p = page.properties?.[name];
   if(!p) return "";
-  if(p.type==="title")       return p.title.map(t=>t.plain_text).join("");
-  if(p.type==="rich_text")   return p.rich_text.map(t=>t.plain_text).join("");
-  if(p.type==="select")      return p.select?.name||"";
-  if(p.type==="date")        return p.date?.start||"";
-  if(p.type==="number")      return p.number!=null?p.number:"";
+  if(p.type==="title")     return p.title?.map(t=>t.plain_text).join("")||"";
+  if(p.type==="rich_text") return p.rich_text?.map(t=>t.plain_text).join("")||"";
+  if(p.type==="select")    return p.select?.name||"";
+  if(p.type==="date")      return p.date?.start||"";
+  if(p.type==="number")    return p.number!=null?String(p.number):"";
   return "";
 }
 
-// ── Load Data ──────────────────────────────────────────────────────────────
+// ── Load ───────────────────────────────────────────────────────────────────
 async function loadAll(){
+  document.getElementById("content").innerHTML = '<div class="loading"><div class="spinner"></div><div>Loading your food log...</div></div>';
   try {
-    document.getElementById("content").innerHTML = '<div class="loading"><div class="spinner"></div><div>Loading your food log...</div></div>';
-
-    // Fetch all three databases in parallel
-    const [rawEntries, rawDaily, rawWeekly] = await Promise.all([
-      notionQuery(DB_ENTRIES, null, [{property:"Date",direction:"ascending"},{property:"Time",direction:"ascending"}]),
-      notionQuery(DB_DAILY),
-      notionQuery(DB_WEEKLY),
+    const [rawE, rawD, rawW] = await Promise.all([
+      queryDB(DB_ENTRIES),
+      queryDB(DB_DAILY),
+      queryDB(DB_WEEKLY),
     ]);
 
-    // Parse entries
-    entries = rawEntries.map(p=>({
-      id:    p.id,
-      date:  getProp(p,"Date"),
-      time:  getProp(p,"Time"),
-      type:  getProp(p,"Type"),
-      description: getProp(p,"Description"),
-      calories: getProp(p,"Calories"),
-      protein:  getProp(p,"Protein"),
-      carbs:    getProp(p,"Carbs"),
-      fat:      getProp(p,"Fat"),
-    })).filter(e=>e.date);
+    entries = rawE.map(p=>({
+      id:p.id, date:prop(p,"Date"), time:prop(p,"Time"),
+      type:prop(p,"Type"), description:prop(p,"Description"),
+      calories:prop(p,"Calories"), protein:prop(p,"Protein"),
+      carbs:prop(p,"Carbs"), fat:prop(p,"Fat"),
+    })).filter(e=>e.date).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
 
-    // Parse daily info — keyed by date
     daily = {};
-    rawDaily.forEach(p=>{
-      const date = getProp(p,"Date");
-      if(!date) return;
-      daily[date] = {
-        steps:    getProp(p,"Steps"),
-        exercise: getProp(p,"Exercise"),
-        symptoms: getProp(p,"Symptoms"),
-        meds:     getProp(p,"Medication"),
-        cal:      getProp(p,"Total Calories"),
-        pro:      getProp(p,"Total Protein"),
-        carb:     getProp(p,"Total Carbs"),
-        fat:      getProp(p,"Total Fat"),
+    rawD.forEach(p=>{
+      const d=prop(p,"Date"); if(!d) return;
+      daily[d]={
+        steps:prop(p,"Steps"), exercise:prop(p,"Exercise"),
+        symptoms:prop(p,"Symptoms"), meds:prop(p,"Medication"),
+        cal:prop(p,"Total Calories"), pro:prop(p,"Total Protein"),
+        carb:prop(p,"Total Carbs"), fat:prop(p,"Total Fat"),
       };
     });
 
-    // Parse weekly — keyed by week start date
-    weekly = {};
-    ALL_WEEKS.forEach(w => weekly[w] = {weight:null,weightDisplay:"",avgCal:null,avgCalDisplay:"",avgSteps:null,avgStepsDisplay:"",avgPro:null,avgProDisplay:"",avgCarb:null,avgCarbDisplay:"",avgFat:null,avgFatDisplay:"",exerciseDays:null,notes:""});
-    rawWeekly.forEach(p=>{
-      const week = getProp(p,"Week");
-      if(!week||!weekly[week]) return;
-      const wt = getProp(p,"Weight (kg)");
-      weekly[week] = {
-        weightDisplay: wt,
-        weight: wt ? parseFloat(wt.replace(/[^0-9.]/g,""))||null : null,
-        avgCalDisplay: getProp(p,"Avg Calories"),
-        avgCal: parseFloat((getProp(p,"Avg Calories")||"").replace(/[^0-9.]/g,""))||null,
-        avgStepsDisplay: getProp(p,"Avg Steps"),
-        avgSteps: parseFloat((getProp(p,"Avg Steps")||"").replace(/[^0-9.]/g,""))||null,
-        avgProDisplay: getProp(p,"Avg Protein"),
-        avgPro: parseFloat((getProp(p,"Avg Protein")||"").replace(/[^0-9.]/g,""))||null,
-        avgCarbDisplay: getProp(p,"Avg Carbs"),
-        avgCarb: parseFloat((getProp(p,"Avg Carbs")||"").replace(/[^0-9.]/g,""))||null,
-        avgFatDisplay: getProp(p,"Avg Fat"),
-        avgFat: parseFloat((getProp(p,"Avg Fat")||"").replace(/[^0-9.]/g,""))||null,
-        exerciseDays: getProp(p,"Exercise Days")||null,
-        notes: getProp(p,"Notes"),
+    weekly={};
+    ALL_WEEKS.forEach(w=>weekly[w]={weight:null,weightDisplay:"",avgCal:null,avgCalDisplay:"",avgSteps:null,avgStepsDisplay:"",avgPro:null,avgProDisplay:"",avgCarb:null,avgCarbDisplay:"",avgFat:null,avgFatDisplay:"",exerciseDays:null});
+    rawW.forEach(p=>{
+      const w=prop(p,"Week"); if(!w||!weekly[w]) return;
+      const wt=prop(p,"Weight (kg)");
+      weekly[w]={
+        weightDisplay:wt, weight:wt?parseFloat(wt.replace(/[^0-9.]/g,""))||null:null,
+        avgCalDisplay:prop(p,"Avg Calories"), avgCal:parseFloat((prop(p,"Avg Calories")||"").replace(/[^0-9.]/g,""))||null,
+        avgStepsDisplay:prop(p,"Avg Steps"), avgSteps:parseFloat((prop(p,"Avg Steps")||"").replace(/[^0-9.]/g,""))||null,
+        avgProDisplay:prop(p,"Avg Protein"), avgPro:parseFloat((prop(p,"Avg Protein")||"").replace(/[^0-9.]/g,""))||null,
+        avgCarbDisplay:prop(p,"Avg Carbs"), avgCarb:parseFloat((prop(p,"Avg Carbs")||"").replace(/[^0-9.]/g,""))||null,
+        avgFatDisplay:prop(p,"Avg Fat"), avgFat:parseFloat((prop(p,"Avg Fat")||"").replace(/[^0-9.]/g,""))||null,
+        exerciseDays:prop(p,"Exercise Days")||null,
       };
     });
 
-    // Set indices to most recent data
-    const dates = allDates();
-    dateIdx = dates.length > 0 ? dates.length - 1 : 0;
-    weekIdx = 0; // start at first week with data
+    const dates=allDates();
+    dateIdx = dates.length>0 ? dates.length-1 : 0;
+    weekIdx = 0;
 
-    // Update header timestamp
-    const now = new Date();
+    const now=new Date();
     document.getElementById("last-updated").textContent =
-      "Updated " + now.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+      "Updated "+now.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
 
     render();
-  } catch(err) {
+  } catch(err){
     document.getElementById("content").innerHTML =
-      `<div class="error-box">⚠️ Could not load data from Notion.<br><small>${err.message}</small></div>
-       <button onclick="loadAll()" style="margin:0 auto;display:block;padding:10px 24px;background:#0f766e;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600">Retry</button>`;
+      `<div class="error-box">⚠️ ${err.message}</div>
+       <button class="retry-btn" onclick="loadAll()">Try again</button>`;
   }
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-function allDates(){ return [...new Set(entries.map(e=>e.date))].sort(); }
+function allDates(){ return[...new Set(entries.map(e=>e.date))].sort(); }
 function selDate(){ const d=allDates(); return d[dateIdx]||d[0]; }
 function selWeek(){ return ALL_WEEKS[weekIdx]; }
 function getInfo(){ return daily[selDate()]||{steps:"",exercise:"",symptoms:"",meds:"",cal:"",pro:"",carb:"",fat:""}; }
 function fmtDate(d){ return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}); }
 function fmtShort(d){ return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}); }
-function fmtWeek(d){
-  const s=new Date(d+"T12:00:00"),e=new Date(s); e.setDate(e.getDate()+6);
-  return s.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" – "+e.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-}
+function fmtWeek(d){ const s=new Date(d+"T12:00:00"),e=new Date(s);e.setDate(e.getDate()+6); return s.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" – "+e.toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }
 function fmtWeekShort(d){ return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }
 function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
@@ -282,18 +262,18 @@ function setTab(tab){
 }
 function render(){
   const c=document.getElementById("content");
-  if(currentTab==="log")          c.innerHTML=renderLog();
-  else if(currentTab==="week")    c.innerHTML=renderWeek();
-  else { c.innerHTML=renderSummary(); requestAnimationFrame(()=>drawCharts()); }
+  if(currentTab==="log")       c.innerHTML=renderLog();
+  else if(currentTab==="week") c.innerHTML=renderWeek();
+  else{ c.innerHTML=renderSummary(); requestAnimationFrame(()=>drawCharts()); }
 }
 
-// ── Daily Log ──────────────────────────────────────────────────────────────
+// ── Daily ──────────────────────────────────────────────────────────────────
 function renderLog(){
-  const dates=allDates(), date=selDate(), info=getInfo();
-  const dayEntries=entries.filter(e=>e.date===date).sort((a,b)=>a.time.localeCompare(b.time));
-  const groups=TYPES.filter(t=>dayEntries.some(e=>e.type===t)).map(type=>{
+  const dates=allDates(),date=selDate(),info=getInfo();
+  const dayE=entries.filter(e=>e.date===date).sort((a,b)=>a.time.localeCompare(b.time));
+  const groups=TYPES.filter(t=>dayE.some(e=>e.type===t)).map(type=>{
     const m=TYPE_META[type];
-    const rows=dayEntries.filter(e=>e.type===type).map(e=>{
+    const rows=dayE.filter(e=>e.type===type).map(e=>{
       const pills=[
         e.calories&&e.calories!=="0"?`<span class="macro-pill">🔥 ${esc(e.calories)} kcal</span>`:"",
         e.protein&&e.protein!=="0"?`<span class="macro-pill">P ${esc(e.protein)}g</span>`:"",
@@ -310,13 +290,9 @@ function renderLog(){
       <div class="nav-center"><div class="nav-main">${fmtDate(date)}</div><div class="nav-sub">Day ${dateIdx+1} of ${dates.length}</div></div>
       <button class="arrow" onclick="nextDay()" ${dateIdx>=dates.length-1?"disabled":""}>›</button>
     </div>
-    <div class="banner">
-      <div class="banner-label">Daily Totals</div>
-      <div class="banner-grid">
-        ${[{k:"cal",l:"Calories"},{k:"pro",l:"Protein g"},{k:"carb",l:"Carbs g"},{k:"fat",l:"Fat g"}].map(({k,l})=>`
-        <div class="banner-col"><div class="banner-val">${esc(info[k])||"—"}</div><div class="banner-lbl">${l}</div></div>`).join("")}
-      </div>
-    </div>
+    <div class="banner"><div class="banner-label">Daily Totals</div><div class="banner-grid">
+      ${[{k:"cal",l:"Calories"},{k:"pro",l:"Protein g"},{k:"carb",l:"Carbs g"},{k:"fat",l:"Fat g"}].map(({k,l})=>`<div class="banner-col"><div class="banner-val">${esc(info[k])||"—"}</div><div class="banner-lbl">${l}</div></div>`).join("")}
+    </div></div>
     <div class="meta-row">
       <div class="meta-box"><div class="meta-box-label">👟 Steps</div><div class="${info.steps?"meta-box-value":"meta-box-empty"}">${info.steps?Number(info.steps).toLocaleString():"Not logged"}</div></div>
       <div class="meta-box"><div class="meta-box-label">🏃 Exercise</div><div class="${info.exercise?"meta-box-value":"meta-box-empty"}">${info.exercise?esc(info.exercise):"Rest day"}</div></div>
@@ -325,16 +301,15 @@ function renderLog(){
       <div class="meta-box"><div class="meta-box-label">🩺 Symptoms</div><div class="${info.symptoms?"meta-box-value":"meta-box-empty"}">${info.symptoms?esc(info.symptoms):"None"}</div></div>
       <div class="meta-box"><div class="meta-box-label">💊 Medication</div><div class="${info.meds?"meta-box-value":"meta-box-empty"}">${info.meds?esc(info.meds):"None"}</div></div>
     </div>
-    ${dayEntries.length===0?'<div class="empty">No entries for this day yet.</div>':groups}`;
+    ${dayE.length===0?'<div class="empty">No entries for this day yet.</div>':groups}`;
 }
 
-// ── Week View ──────────────────────────────────────────────────────────────
+// ── Week ───────────────────────────────────────────────────────────────────
 function renderWeek(){
-  const wk=selWeek(), wi=weekly[wk]||{};
-  const wStart=new Date(wk+"T12:00:00"), wEnd=new Date(wStart); wEnd.setDate(wEnd.getDate()+6);
-  const wkDates=allDates().filter(d=>{const dt=new Date(d+"T12:00:00");return dt>=wStart&&dt<=wEnd;}).reverse();
-
-  const dayCards=wkDates.length>0 ? wkDates.map(d=>{
+  const wk=selWeek(),wi=weekly[wk]||{};
+  const wS=new Date(wk+"T12:00:00"),wE=new Date(wS);wE.setDate(wE.getDate()+6);
+  const wkDates=allDates().filter(d=>{const dt=new Date(d+"T12:00:00");return dt>=wS&&dt<=wE;}).reverse();
+  const cards=wkDates.length>0?wkDates.map(d=>{
     const di=daily[d]||{};
     return`<div class="week-card" onclick="goToDay('${d}')">
       <div class="week-primary">
@@ -354,8 +329,7 @@ function renderWeek(){
         ${di.meds?`<div class="week-detail week-meds">💊 ${esc(di.meds)}</div>`:""}
       `:""}
     </div>`;
-  }).join("") : `<div class="empty">No entries logged for this week yet.</div>`;
-
+  }).join(""):`<div class="empty">No entries logged for this week yet.</div>`;
   return`
     <div class="nav-bar">
       <button class="arrow" onclick="prevWeek()" ${weekIdx===0?"disabled":""}>‹</button>
@@ -363,7 +337,7 @@ function renderWeek(){
       <button class="arrow" onclick="nextWeek()" ${weekIdx>=ALL_WEEKS.length-1?"disabled":""}>›</button>
     </div>
     ${wi.weight?`<div style="margin-bottom:10px"><span class="week-weight-badge">⚖️ ${esc(wi.weightDisplay)} kg this week</span></div>`:""}
-    ${dayCards}`;
+    ${cards}`;
 }
 
 // ── Summary ────────────────────────────────────────────────────────────────
@@ -409,54 +383,43 @@ function drawCharts(){
   const wData=ALL_WEEKS.map(w=>({...weekly[w],wk:w}));
   const labels=ALL_WEEKS.map(w=>fmtWeekShort(w));
   drawChart("svg-weight","wrap-weight",labels,200,[
-    {values:wData.map(w=>w.weight),color:"#0f766e",label:"Weight",sw:3,ds:7,fmt:(v)=>v!=null?v+" kg":null}
+    {values:wData.map(w=>w.weight),color:"#0f766e",label:"Weight",sw:3,ds:7,fmt:v=>v!=null?v+" kg":null}
   ]);
   drawChart("svg-calsteps","wrap-calsteps",labels,160,[
-    {values:wData.map(w=>w.avgCal),color:"#0f766e",label:"Avg Calories",sw:2,ds:5,fmt:(v)=>v!=null?Math.round(v)+" kcal":null},
+    {values:wData.map(w=>w.avgCal),color:"#0f766e",label:"Avg Calories",sw:2,ds:5,fmt:v=>v!=null?Math.round(v)+" kcal":null},
     {values:wData.map((w,i)=>w.avgSteps!=null?w.avgSteps/10:null),color:"#0284c7",label:"Avg Steps",sw:2,ds:5,fmt:(v,i)=>wData[i]?.avgSteps!=null?Math.round(wData[i].avgSteps).toLocaleString()+" steps":null},
   ]);
   drawChart("svg-macros","wrap-macros",labels,160,[
-    {values:wData.map(w=>w.avgPro), color:"#dc2626",label:"Protein",sw:2,ds:4,fmt:(v)=>v!=null?v+"g protein":null},
-    {values:wData.map(w=>w.avgCarb),color:"#d97706",label:"Carbs",  sw:2,ds:4,fmt:(v)=>v!=null?v+"g carbs":null},
-    {values:wData.map(w=>w.avgFat), color:"#7c3aed",label:"Fat",    sw:2,ds:4,fmt:(v)=>v!=null?v+"g fat":null},
+    {values:wData.map(w=>w.avgPro), color:"#dc2626",label:"Protein",sw:2,ds:4,fmt:v=>v!=null?v+"g protein":null},
+    {values:wData.map(w=>w.avgCarb),color:"#d97706",label:"Carbs",  sw:2,ds:4,fmt:v=>v!=null?v+"g carbs":null},
+    {values:wData.map(w=>w.avgFat), color:"#7c3aed",label:"Fat",    sw:2,ds:4,fmt:v=>v!=null?v+"g fat":null},
   ]);
 }
 
 function drawChart(svgId,wrapId,labels,height,series){
-  const svg=document.getElementById(svgId), wrap=document.getElementById(wrapId);
-  if(!svg||!wrap) return;
+  const svg=document.getElementById(svgId),wrap=document.getElementById(wrapId);
+  if(!svg||!wrap)return;
   const W=wrap.clientWidth||320;
   svg.setAttribute("viewBox",`0 0 ${W} ${height}`);
-  svg.setAttribute("width",W); svg.setAttribute("height",height);
-  const pad={l:40,r:12,t:16,b:32};
-  const iW=W-pad.l-pad.r, iH=height-pad.t-pad.b, n=labels.length;
-  const allVals=series.flatMap(s=>s.values).filter(v=>v!=null);
+  svg.setAttribute("width",W);svg.setAttribute("height",height);
+  const pad={l:40,r:12,t:16,b:32},iW=W-pad.l-pad.r,iH=height-pad.t-pad.b,n=labels.length;
+  const allV=series.flatMap(s=>s.values).filter(v=>v!=null);
   let minV=0,maxV=100;
-  if(allVals.length>0){ minV=Math.min(...allVals); maxV=Math.max(...allVals); const r=maxV-minV||10; minV-=r*0.12; maxV+=r*0.12; }
-  function xPos(i){ return pad.l+(n<=1?iW/2:i*(iW/(n-1))); }
-  function yPos(v){ return pad.t+iH-((v-minV)/(maxV-minV))*iH; }
+  if(allV.length){minV=Math.min(...allV);maxV=Math.max(...allV);const r=maxV-minV||10;minV-=r*0.12;maxV+=r*0.12;}
+  const xP=i=>pad.l+(n<=1?iW/2:i*(iW/(n-1)));
+  const yP=v=>pad.t+iH-((v-minV)/(maxV-minV))*iH;
   let html="";
-  for(let g=0;g<=4;g++){
-    const frac=g/4, y=pad.t+iH*frac, val=maxV-(maxV-minV)*frac;
-    html+=`<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W-pad.r}" y2="${y.toFixed(1)}" stroke="#f1f5f9" stroke-width="1"/>`;
-    html+=`<text x="${pad.l-5}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${Math.round(val)}</text>`;
-  }
+  for(let g=0;g<=4;g++){const frac=g/4,y=pad.t+iH*frac,val=maxV-(maxV-minV)*frac;html+=`<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W-pad.r}" y2="${y.toFixed(1)}" stroke="#f1f5f9" stroke-width="1"/><text x="${pad.l-5}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${Math.round(val)}</text>`;}
   const step=Math.max(1,Math.round(n/6));
-  labels.forEach((l,i)=>{ if(i%step!==0&&i!==n-1) return; html+=`<text x="${xPos(i).toFixed(1)}" y="${height-6}" text-anchor="middle" font-size="9" fill="#94a3b8">${l}</text>`; });
-  const today=new Date();
-  const firstFutureIdx=ALL_WEEKS.findIndex(w=>new Date(w+"T12:00:00")>today);
-  if(firstFutureIdx>0&&firstFutureIdx<n){ const fx=xPos(firstFutureIdx); html+=`<rect x="${fx}" y="${pad.t}" width="${W-pad.r-fx}" height="${iH}" fill="#f8fafc" opacity="0.7"/><line x1="${fx}" y1="${pad.t}" x2="${fx}" y2="${pad.t+iH}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,3"/>`; }
-  series.forEach(s=>{
-    let pathD="", lastNull=true;
-    s.values.forEach((v,i)=>{ if(v==null){lastNull=true;return;} const x=xPos(i),y=yPos(v); pathD+=(lastNull?`M ${x.toFixed(1)} ${y.toFixed(1)} `:`L ${x.toFixed(1)} ${y.toFixed(1)} `); lastNull=false; });
-    if(pathD) html+=`<path d="${pathD}" fill="none" stroke="${s.color}" stroke-width="${s.sw}" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`;
-  });
+  labels.forEach((l,i)=>{if(i%step!==0&&i!==n-1)return;html+=`<text x="${xP(i).toFixed(1)}" y="${height-6}" text-anchor="middle" font-size="9" fill="#94a3b8">${l}</text>`;});
+  const today=new Date(),fi=ALL_WEEKS.findIndex(w=>new Date(w+"T12:00:00")>today);
+  if(fi>0&&fi<n){const fx=xP(fi);html+=`<rect x="${fx}" y="${pad.t}" width="${W-pad.r-fx}" height="${iH}" fill="#f8fafc" opacity="0.7"/><line x1="${fx}" y1="${pad.t}" x2="${fx}" y2="${pad.t+iH}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,3"/>`;}
+  series.forEach(s=>{let d="",ln=true;s.values.forEach((v,i)=>{if(v==null){ln=true;return;}const x=xP(i),y=yP(v);d+=(ln?`M ${x.toFixed(1)} ${y.toFixed(1)} `:`L ${x.toFixed(1)} ${y.toFixed(1)} `);ln=false;});if(d)html+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.sw}" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`;});
   series.forEach(s=>{
     s.values.forEach((v,i)=>{
-      if(v==null) return;
-      const x=xPos(i),y=yPos(v),ds=s.ds||5;
-      const tooltipLines=series.map(ss=>{ const sv=ss.values[i]; if(sv==null) return""; const d=ss.fmt?ss.fmt(sv,i):String(sv); return d?`${ss.color}|${ss.label}|${d}`:""; }).filter(Boolean).join(";;");
-      const tl=tooltipLines.replace(/"/g,"&quot;");
+      if(v==null)return;
+      const x=xP(i),y=yP(v),ds=s.ds||5;
+      const tl=series.map(ss=>{const sv=ss.values[i];if(sv==null)return"";const d=ss.fmt?ss.fmt(sv,i):String(sv);return d?`${ss.color}|${ss.label}|${d}`:"";}).filter(Boolean).join(";;").replace(/"/g,"&quot;");
       const wl=labels[i];
       html+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${ds}" fill="${s.color}" stroke="white" stroke-width="2" style="cursor:pointer" data-week="${wl}" data-lines="${tl}" onmouseenter="dotEnter(event,this)" ontouchstart="dotEnter(event,this);event.preventDefault()" onmouseleave="dotLeave()"/>`;
       html+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${ds+10}" fill="transparent" style="cursor:pointer" data-week="${wl}" data-lines="${tl}" onmouseenter="dotEnter(event,this)" ontouchstart="dotEnter(event,this);event.preventDefault()" onmouseleave="dotLeave()"/>`;
@@ -465,35 +428,33 @@ function drawChart(svgId,wrapId,labels,height,series){
   svg.innerHTML=html;
 }
 
-let ttTimer=null;
+let ttT=null;
 function dotEnter(e,el){
-  clearTimeout(ttTimer);
-  const week=el.getAttribute("data-week"), linesRaw=el.getAttribute("data-lines");
+  clearTimeout(ttT);
   const tt=document.getElementById("chart-tt");
-  let inner=`<div class="tt-label">${week}</div>`;
-  if(linesRaw) linesRaw.split(";;").forEach(part=>{ const [color,label,val]=part.split("|"); if(val) inner+=`<div class="tt-row"><div class="tt-dot" style="background:${color}"></div><span class="tt-val">${val}</span></div>`; });
+  let inner=`<div class="tt-label">${el.getAttribute("data-week")}</div>`;
+  const lr=el.getAttribute("data-lines");
+  if(lr)lr.split(";;").forEach(p=>{const[c,l,v]=p.split("|");if(v)inner+=`<div class="tt-row"><div class="tt-dot" style="background:${c}"></div><span class="tt-val">${v}</span></div>`;});
   tt.innerHTML=inner;
   let cx,cy;
-  if(e.touches&&e.touches.length>0){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}
-  else{cx=e.clientX;cy=e.clientY;}
-  tt.style.opacity="0"; tt.classList.add("show");
-  const tw=tt.offsetWidth, th=tt.offsetHeight;
-  let left=cx-tw/2, top=cy-th-14;
-  if(left<8) left=8; if(left+tw>window.innerWidth-8) left=window.innerWidth-tw-8;
-  if(top<8) top=cy+20;
-  tt.style.left=left+"px"; tt.style.top=top+"px"; tt.style.opacity="1";
+  if(e.touches?.length>0){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}else{cx=e.clientX;cy=e.clientY;}
+  tt.style.opacity="0";tt.classList.add("show");
+  const tw=tt.offsetWidth,th=tt.offsetHeight;
+  let left=cx-tw/2,top=cy-th-14;
+  if(left<8)left=8;if(left+tw>window.innerWidth-8)left=window.innerWidth-tw-8;
+  if(top<8)top=cy+20;
+  tt.style.left=left+"px";tt.style.top=top+"px";tt.style.opacity="1";
 }
-function dotLeave(){ ttTimer=setTimeout(()=>{ const tt=document.getElementById("chart-tt"); if(tt) tt.classList.remove("show"); },300); }
-document.addEventListener("touchstart",e=>{ if(!e.target.closest("circle")) dotLeave(); });
+function dotLeave(){ttT=setTimeout(()=>{document.getElementById("chart-tt")?.classList.remove("show");},300);}
+document.addEventListener("touchstart",e=>{if(!e.target.closest("circle"))dotLeave();});
 
-// ── Navigation ─────────────────────────────────────────────────────────────
-function prevDay(){ if(dateIdx>0){dateIdx--;render();} }
-function nextDay(){ const d=allDates(); if(dateIdx<d.length-1){dateIdx++;render();} }
-function prevWeek(){ if(weekIdx>0){weekIdx--;render();} }
-function nextWeek(){ if(weekIdx<ALL_WEEKS.length-1){weekIdx++;render();} }
-function goToDay(d){ const idx=allDates().indexOf(d); if(idx>=0){dateIdx=idx;setTab("log");} }
+// ── Nav ────────────────────────────────────────────────────────────────────
+function prevDay(){if(dateIdx>0){dateIdx--;render();}}
+function nextDay(){const d=allDates();if(dateIdx<d.length-1){dateIdx++;render();}}
+function prevWeek(){if(weekIdx>0){weekIdx--;render();}}
+function nextWeek(){if(weekIdx<ALL_WEEKS.length-1){weekIdx++;render();}}
+function goToDay(d){const i=allDates().indexOf(d);if(i>=0){dateIdx=i;setTab("log");}}
 
-// ── Init ───────────────────────────────────────────────────────────────────
 loadAll();
 </script>
 </body>
