@@ -1,461 +1,996 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-<meta name="apple-mobile-web-app-title" content="Food Log"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anna's Food Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;min-height:100vh;font-size:15px}
-  button{cursor:pointer;font-family:inherit}
-  #header{background:#0f766e;color:white;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;gap:10;flex-wrap:wrap}
-  #header h1{font-size:17px;font-weight:700}
-  #header p{font-size:11px;opacity:0.75;margin-top:1px}
-  .tab-row{display:flex;gap:6px}
-  .tab{padding:6px 13px;border-radius:16px;border:none;font-size:13px;font-weight:600;cursor:pointer}
-  .tab.on{background:white;color:#0f766e}
-  .tab.off{background:rgba(255,255,255,0.18);color:white}
-  #content{max-width:680px;margin:0 auto;padding:14px 14px 80px}
-  .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;color:#64748b}
-  .spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#0f766e;border-radius:50%;animation:spin .8s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .error-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:12px;padding:16px;color:#dc2626;font-size:14px;margin:20px 0;line-height:1.5}
-  .retry-btn{display:block;margin:12px auto 0;padding:10px 24px;background:#0f766e;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600}
-  .nav-bar{display:flex;align-items:center;gap:10;margin-bottom:14px}
-  .arrow{width:40px;height:40px;border-radius:50%;border:1px solid #cbd5e1;background:white;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .arrow:disabled{opacity:0.25;cursor:default}
-  .nav-center{flex:1;text-align:center}
-  .nav-main{font-size:16px;font-weight:700;color:#0f766e}
-  .nav-sub{font-size:12px;color:#94a3b8;margin-top:2px}
-  .banner{background:linear-gradient(135deg,#0f766e,#0d9488);border-radius:12px;padding:13px 16px;margin-bottom:10px;color:white}
-  .banner-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;opacity:0.75;margin-bottom:8px}
-  .banner-grid{display:grid;grid-template-columns:repeat(4,1fr)}
-  .banner-col{display:flex;flex-direction:column;align-items:center;border-left:1px solid rgba(255,255,255,0.2);padding:0 4px}
-  .banner-col:first-child{border-left:none;padding-left:0}
-  .banner-val{font-size:14px;font-weight:700;min-height:20px;text-align:center}
-  .banner-lbl{font-size:10px;opacity:0.7;text-align:center}
-  .meta-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-  .meta-box{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px}
-  .meta-box-label{font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
-  .meta-box-value{font-size:14px;color:#1e293b}
-  .meta-box-empty{font-size:13px;color:#cbd5e1;font-style:italic}
-  .meal-group{border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;background:white;margin-bottom:10px}
-  .meal-header{display:flex;align-items:center;gap:8px;padding:8px 14px;border-left:4px solid}
-  .meal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-  .meal-title{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#475569}
-  .entry-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-top:1px solid #f1f5f9}
-  .entry-time{font-size:12px;color:#94a3b8;min-width:38px;padding-top:2px;flex-shrink:0}
-  .entry-body{flex:1;min-width:0}
-  .entry-desc{font-size:14px;color:#1e293b;margin-bottom:4px;word-break:break-word}
-  .entry-macros{display:flex;flex-wrap:wrap;gap:5px}
-  .macro-pill{font-size:11px;background:#f1f5f9;color:#64748b;padding:2px 7px;border-radius:5px}
-  .empty{text-align:center;color:#94a3b8;padding:32px 0;font-style:italic}
-  .week-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer}
-  .week-primary{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-  .week-date{font-size:14px;font-weight:700;color:#0f766e;margin-bottom:4px}
-  .week-cals{font-size:28px;font-weight:800;color:#0f766e;line-height:1}
-  .week-cals-label{font-size:11px;color:#94a3b8;margin-top:2px}
-  .week-steps{font-size:22px;font-weight:800;color:#1e293b;text-align:right;line-height:1}
-  .week-steps-label{font-size:11px;color:#94a3b8;text-align:right;margin-top:2px}
-  .week-macros-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
-  .macro-box{background:#f8fafc;border-radius:8px;padding:7px 10px;text-align:center}
-  .macro-box-val{font-size:14px;font-weight:700;color:#334155}
-  .macro-box-lbl{font-size:10px;color:#94a3b8}
-  .week-divider{border:none;border-top:1px solid #f1f5f9;margin:8px 0}
-  .week-detail{font-size:12px;padding:2px 0}
-  .week-exercise{color:#0369a1}
-  .week-symptoms{color:#b45309;font-style:italic}
-  .week-meds{color:#7c3aed}
-  .week-weight-badge{display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:4px 12px;font-size:14px;font-weight:700;color:#166534;margin-bottom:10px}
-  .chart-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:16px}
-  .chart-card.primary{border:2px solid #0f766e;box-shadow:0 4px 20px rgba(15,118,110,0.12)}
-  .chart-title{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:2px}
-  .chart-subtitle{font-size:12px;color:#94a3b8;margin-bottom:14px}
-  .chart-wrap{position:relative;width:100%;user-select:none}
-  svg.chart{width:100%;display:block;overflow:visible;cursor:crosshair}
-  .chart-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
-  .legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b}
-  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-  .stat-box{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}
-  .stat-val{font-size:18px;font-weight:800;color:#0f766e}
-  .stat-lbl{font-size:10px;color:#94a3b8;margin-top:2px}
-  #chart-tt{position:fixed;background:#1e293b;color:white;border-radius:10px;padding:10px 14px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,0.3)}
-  #chart-tt.show{opacity:1}
-  .tt-label{font-size:11px;opacity:0.65;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px}
-  .tt-row{display:flex;align-items:center;gap:7px;margin-top:3px}
-  .tt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-  .tt-val{font-weight:700}
-  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;z-index:200;pointer-events:none}
-  #toast.show{opacity:1}
+:root {
+  --burgundy: #60212E;
+  --burgundy-dark: #4a1922;
+  --burgundy-mid: #521d28;
+  --burgundy-light: #7a2d3d;
+  --steel: #69ACC2;
+  --steel-light: #8fc4d6;
+  --sand: #D8D1BD;
+  --sand-light: #ece8df;
+  --white: #FFFFFF;
+  --muted: rgba(255,255,255,0.5);
+  --dim: rgba(255,255,255,0.72);
+  --card: rgba(255,255,255,0.055);
+  --card-border: rgba(255,255,255,0.09);
+  --cal-goal: 1700;
+  --step-goal: 10000;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--burgundy-dark);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── HEADER ─── */
+header {
+  background: var(--burgundy);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 16px 18px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.35);
+}
+.header-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.logo em { color: var(--steel); font-style: normal; }
+.build-time {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+}
+.tabs {
+  display: flex;
+}
+.tab {
+  padding: 9px 18px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.18s;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  user-select: none;
+}
+.tab.active { color: var(--white); border-bottom-color: var(--steel); }
+.tab:hover:not(.active) { color: var(--dim); }
+
+/* ─── MAIN ─── */
+main { padding: 18px 15px 48px; max-width: 620px; margin: 0 auto; }
+.view { display: none; animation: fadeIn 0.22s ease; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ─── NAV ARROWS ─── */
+.day-nav, .week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 8px;
+}
+.nav-btn {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  color: var(--white);
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.11); }
+.nav-btn:disabled { opacity: 0.28; cursor: default; pointer-events: none; }
+.nav-center { flex: 1; text-align: center; }
+.nav-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 21px;
+  font-weight: 700;
+  display: block;
+}
+.nav-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+  display: block;
+}
+
+/* ─── SUMMARY CARD ─── */
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 15px;
+  margin-bottom: 14px;
+}
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.metric {
+  background: rgba(255,255,255,0.038);
+  border-radius: 11px;
+  padding: 11px 12px;
+  position: relative;
+  border-left: 2.5px solid transparent;
+}
+.metric.good { border-left-color: #66bb6a; }
+.metric.bad  { border-left-color: #ef5350; }
+.metric.info { border-left-color: var(--steel); }
+.metric-label {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.metric-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 1;
+}
+.metric-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.metric-icon {
+  position: absolute;
+  top: 9px; right: 10px;
+  font-size: 15px;
+}
+.progress-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  margin-top: 7px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  max-width: 100%;
+}
+.fill-good  { background: #66bb6a; }
+.fill-bad   { background: #ef5350; }
+.fill-steel { background: var(--steel); }
+
+/* ─── MACRO PILLS ─── */
+.macros-row {
+  display: flex;
+  gap: 8px;
+}
+.mpill {
+  flex: 1;
+  background: rgba(255,255,255,0.048);
+  border-radius: 9px;
+  padding: 8px 6px;
+  text-align: center;
+}
+.mpill-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 3px;
+}
+.mpill-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+}
+.mpill.p .mpill-val { color: #81c784; }
+.mpill.c .mpill-val { color: #ffb74d; }
+.mpill.f .mpill-val { color: #ce93d8; }
+
+/* ─── INFO ITEMS ─── */
+.info-strip { display: flex; flex-direction: column; gap: 7px; margin-bottom: 15px; }
+.info-item {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 10px 13px;
+  font-size: 13px;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  line-height: 1.45;
+}
+.ii-icon { flex-shrink: 0; margin-top: 1px; }
+.ii-body { color: var(--dim); }
+.ii-body strong { color: var(--white); font-weight: 500; }
+
+/* ─── MEAL LIST ─── */
+.section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  margin-bottom: 9px;
+  margin-top: 4px;
+}
+.meal-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  border-left: 3px solid transparent;
+}
+.meal-card.t-Breakfast  { border-left-color: #ffd54f; }
+.meal-card.t-Lunch      { border-left-color: #81c784; }
+.meal-card.t-Dinner     { border-left-color: #ce93d8; }
+.meal-card.t-Snack      { border-left-color: #ffb74d; }
+.meal-card.t-Drink      { border-left-color: var(--steel); }
+.meal-card.t-Supplement { border-left-color: #f48fb1; }
+.meal-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.meal-desc { font-size: 13.5px; color: var(--white); flex: 1; line-height: 1.35; }
+.meal-cal  {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.meal-bottom { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.meal-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+.type-chip {
+  font-size: 9.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.t-Breakfast  .type-chip { background: rgba(255,213,79,0.13); color: #ffd54f; }
+.t-Lunch      .type-chip { background: rgba(129,199,132,0.13); color: #81c784; }
+.t-Dinner     .type-chip { background: rgba(206,147,216,0.13); color: #ce93d8; }
+.t-Snack      .type-chip { background: rgba(255,183,77,0.13); color: #ffb74d; }
+.t-Drink      .type-chip { background: rgba(105,172,194,0.13); color: var(--steel); }
+.t-Supplement .type-chip { background: rgba(244,143,177,0.13); color: #f48fb1; }
+.mtag {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--dim);
+}
+
+/* ─── EMPTY ─── */
+.empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+.empty-icon { font-size: 30px; margin-bottom: 10px; }
+.empty-text { font-size: 14px; }
+
+/* ─── WEEKLY VIEW ─── */
+.week-summary {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 15px;
+  margin-bottom: 18px;
+}
+.week-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.wstat {
+  background: rgba(255,255,255,0.038);
+  border-radius: 9px;
+  padding: 10px 7px;
+  text-align: center;
+}
+.wstat-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 17px;
+  font-weight: 500;
+  display: block;
+  line-height: 1.2;
+}
+.wstat-val.good { color: #66bb6a; }
+.wstat-val.bad  { color: #ef5350; }
+.wstat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  display: block;
+  margin-top: 3px;
+}
+
+/* Daily cards in weekly view */
+.daily-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 14px 15px;
+  margin-bottom: 10px;
+}
+.daily-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.daily-date-block { }
+.daily-dayname {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+.daily-datestr {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.daily-badges { display: flex; gap: 6px; }
+.goal-badge {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-family: 'DM Mono', monospace;
+}
+.goal-badge.good { background: rgba(102,187,106,0.15); color: #66bb6a; }
+.goal-badge.bad  { background: rgba(239,83,80,0.15);   color: #ef5350; }
+.goal-badge.neutral { background: rgba(105,172,194,0.15); color: var(--steel); }
+.daily-macros { display: flex; gap: 7px; margin-bottom: 9px; }
+.daily-macros .mpill { padding: 6px 5px; }
+.daily-macros .mpill-val { font-size: 13px; }
+.daily-extras { display: flex; flex-direction: column; gap: 5px; }
+.daily-extra-item {
+  font-size: 12px;
+  color: var(--dim);
+  display: flex;
+  gap: 7px;
+}
+.dei { flex-shrink: 0; }
+
+/* ─── TRENDS VIEW ─── */
+.trend-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 14px 15px;
+  margin-bottom: 12px;
+}
+.trend-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.trend-week-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+.trend-weight {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--steel);
+}
+.trend-bars { display: flex; flex-direction: column; gap: 9px; margin-bottom: 14px; }
+.tbar { }
+.tbar-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.tbar-label { font-size: 11px; color: var(--dim); }
+.tbar-val { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+.tbar-track {
+  height: 5px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.tbar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  max-width: 100%;
+}
+
+/* ─── CALENDAR GRID ─── */
+.cal-section { margin-top: 24px; }
+.cal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.cal-months { display: flex; flex-direction: column; gap: 16px; }
+.cal-month { }
+.cal-month-name {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 3px;
+}
+.cal-wd {
+  text-align: center;
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 2px 0;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.cal-day {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  cursor: default;
+  transition: transform 0.1s;
+}
+.cal-day:hover { transform: scale(1.2); }
+.cal-day.empty { background: transparent; }
+.cal-day.future { background: rgba(255,255,255,0.04); color: var(--muted); }
+.cal-day.no-data { background: rgba(255,255,255,0.07); color: var(--muted); }
+.cal-day.both { background: rgba(102,187,106,0.22); color: #81c784; }
+.cal-day.cal-only { background: rgba(255,183,77,0.2); color: #ffb74d; }
+.cal-day.steps-only { background: rgba(105,172,194,0.2); color: var(--steel); }
+.cal-day.neither { background: rgba(239,83,80,0.18); color: #ef5350; }
+
+.cal-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.cal-leg-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--dim);
+}
+.cal-leg-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+}
+
+/* ─── NO DATA MSG ─── */
+.no-data-msg {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--muted);
+  font-size: 13px;
+  font-style: italic;
+}
 </style>
 </head>
 <body>
-<div id="header">
-  <div><h1>Anna's Food Log</h1><p id="last-updated">Loading...</p></div>
-  <div class="tab-row">
-    <button class="tab on"  id="tab-log"     onclick="setTab('log')">Daily</button>
-    <button class="tab off" id="tab-week"    onclick="setTab('week')">Week</button>
-    <button class="tab off" id="tab-summary" onclick="setTab('summary')">Summary</button>
+
+<header>
+  <div class="header-top">
+    <div class="logo">Anna's <em>Food Log</em></div>
+    <div class="build-time" id="buildTime"></div>
   </div>
-</div>
-<div id="content"><div class="loading"><div class="spinner"></div><div>Loading your food log...</div></div></div>
-<div id="chart-tt"></div>
-<div id="toast"></div>
+  <div class="tabs">
+    <div class="tab active" data-view="daily">Daily</div>
+    <div class="tab" data-view="weekly">Weekly</div>
+    <div class="tab" data-view="trends">Trends</div>
+  </div>
+</header>
+
+<main>
+  <!-- ─── DAILY VIEW ─── -->
+  <div class="view active" id="view-daily">
+    <div class="day-nav">
+      <button class="nav-btn" id="dayPrev">&#8592;</button>
+      <div class="nav-center">
+        <span class="nav-title" id="dayTitle"></span>
+        <span class="nav-sub" id="daySubtitle"></span>
+      </div>
+      <button class="nav-btn" id="dayNext">&#8594;</button>
+    </div>
+    <div id="dailyContent"></div>
+  </div>
+
+  <!-- ─── WEEKLY VIEW ─── -->
+  <div class="view" id="view-weekly">
+    <div class="week-nav">
+      <button class="nav-btn" id="weekPrev">&#8592;</button>
+      <div class="nav-center">
+        <span class="nav-title" id="weekTitle"></span>
+        <span class="nav-sub" id="weekSubtitle"></span>
+      </div>
+      <button class="nav-btn" id="weekNext">&#8594;</button>
+    </div>
+    <div id="weeklyContent"></div>
+  </div>
+
+  <!-- ─── TRENDS VIEW ─── -->
+  <div class="view" id="view-trends">
+    <div id="trendsContent"></div>
+  </div>
+</main>
+
 <script>
-// ── Config ─────────────────────────────────────────────────────────────────
-const TOKEN        = "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";
-const DB_ENTRIES   = "12f7117ab09743b7a38ebdec15bd6080";
-const DB_DAILY     = "d114a85d19e94168911b3da1de68c305";
-const DB_WEEKLY    = "761fdcaefd0b4c05b21a1295719c4195";
+// ─── INJECT DATA ───
+const RAW = {"entries":[{"date":"2026-03-03","time":"09:00","type":"Drink","description":"Okra water, 3 glasses","calories":"0–15","protein":"0","carbs":"0–3","fat":"0"},{"date":"2026-03-03","time":"10:00","type":"Drink","description":"Water (~250 ml)","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-03","time":"11:30","type":"Drink","description":"Nespresso coffee, milk, ½ tsp xylitol","calories":"~25","protein":"~1","carbs":"~2","fat":"~1"},{"date":"2026-03-03","time":"11:30","type":"Breakfast","description":"Omelette: 2 eggs, 1 egg white, tomato, feta, olive oil spray","calories":"~260","protein":"~21","carbs":"~6","fat":"~19"},{"date":"2026-03-03","time":"11:40","type":"Drink","description":"Water (~250 ml)","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-03","time":"13:00","type":"Drink","description":"Rooibos tea","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-03","time":"14:00","type":"Snack","description":"Yoghurt (3 tbsp), honey, blueberries, small cheddar piece","calories":"~250","protein":"~9","carbs":"~28–32","fat":"~14"},{"date":"2026-03-03","time":"15:30","type":"Drink","description":"Nespresso coffee, milk, ½ tsp xylitol","calories":"~25","protein":"~1","carbs":"~2","fat":"~1"},{"date":"2026-03-03","time":"16:00","type":"Drink","description":"Water (~250 ml)","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-03","time":"18:00","type":"Drink","description":"Water (~250 ml)","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-03","time":"19:00","type":"Dinner","description":"GF spaghetti (maise & rice), meatballs, Grana Padano, side salad","calories":"~850–930","protein":"~42–50","carbs":"~105–125","fat":"~30–36"},{"date":"2026-03-04","time":"09:00","type":"Drink","description":"Okra water (~1 L)","calories":"0–20","protein":"0","carbs":"0–4","fat":"0"},{"date":"2026-03-04","time":"10:45","type":"Drink","description":"Water","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-04","time":"11:30","type":"Drink","description":"Coffee milk + xylitol","calories":"~25","protein":"~1","carbs":"~2","fat":"~1"},{"date":"2026-03-04","time":"12:00","type":"Drink","description":"Water","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-04","time":"12:30","type":"Lunch","description":"Omelette, spinach, tomatoes, cottage cheese","calories":"~260","protein":"~23","carbs":"~5","fat":"~18"},{"date":"2026-03-04","time":"14:00","type":"Drink","description":"Water","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-04","time":"14:00","type":"Snack","description":"4 Brazil nuts","calories":"~75","protein":"~2","carbs":"~2","fat":"~8"},{"date":"2026-03-04","time":"17:00","type":"Drink","description":"Water (~750 ml gym)","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-04","time":"18:00","type":"Snack","description":"Wafer thin ham (5 slices)","calories":"~65","protein":"~11","carbs":"0","fat":"~2"},{"date":"2026-03-04","time":"19:00","type":"Dinner","description":"Chicken thighs, salad, mozzarella, pesto, avo","calories":"~720–820","protein":"~55–65","carbs":"~8–12","fat":"~50–58"},{"date":"2026-03-04","time":"21:00","type":"Drink","description":"Ginger tea","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-05","time":"09:00","type":"Drink","description":"Okra water (~1 L)","calories":"0–20","protein":"0","carbs":"0–4","fat":"0"},{"date":"2026-03-05","time":"09:45","type":"Drink","description":"Chai latte","calories":"~130","protein":"~3","carbs":"~20","fat":"~3"},{"date":"2026-03-05","time":"11:00","type":"Drink","description":"Nespresso coffee","calories":"~25","protein":"~1","carbs":"~2","fat":"~1"},{"date":"2026-03-05","time":"11:00","type":"Breakfast","description":"Omelette, cottage cheese, ham, ketchup","calories":"~270","protein":"~28","carbs":"~4","fat":"~16"},{"date":"2026-03-05","time":"13:00","type":"Drink","description":"Water (~500 ml)","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-05","time":"14:00","type":"Snack","description":"Steers chips","calories":"~380","protein":"~5","carbs":"~50","fat":"~20"},{"date":"2026-03-05","time":"17:00","type":"Snack","description":"BBQ mini chicken fillet","calories":"~70","protein":"~11","carbs":"~2","fat":"~1"},{"date":"2026-03-05","time":"19:00","type":"Dinner","description":"Lamb chops, broccoli, cheese sauce, salad","calories":"~550","protein":"~35","carbs":"~11","fat":"~40"},{"date":"2026-03-06","time":"09:00","type":"Drink","description":"Okra water (~1 L)","calories":"0–20","protein":"0","carbs":"0–4","fat":"0"},{"date":"2026-03-06","time":"10:00","type":"Drink","description":"Water","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-06","time":"11:00","type":"Drink","description":"Water","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-06","time":"12:00","type":"Drink","description":"Espresso milk + xylitol","calories":"~15","protein":"~1","carbs":"~1","fat":"0"},{"date":"2026-03-06","time":"12:00","type":"Lunch","description":"Small spaghetti & meatballs","calories":"~380","protein":"~32","carbs":"~22","fat":"~20"},{"date":"2026-03-06","time":"14:00","type":"Snack","description":"Mini chicken fillet","calories":"~50","protein":"~8","carbs":"~1","fat":"~1"},{"date":"2026-03-06","time":"14:00","type":"Drink","description":"Water","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-06","time":"14:00","type":"Drink","description":"Espresso","calories":"~2","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-06","time":"19:00","type":"Dinner","description":"Bao buns, ½ mozzarella, creamy chicken dish","calories":"~950–1,100","protein":"~60","carbs":"~70","fat":"~50"},{"date":"2026-03-06","time":"19:00","type":"Drink","description":"3 white wine spritzers","calories":"~240","protein":"0","carbs":"~8","fat":"0"},{"date":"2026-03-07","time":"10:00","type":"Drink","description":"Nespresso coffee","calories":"~25","protein":"~1","carbs":"~2","fat":"~1"},{"date":"2026-03-07","time":"11:30","type":"Drink","description":"Ginger tea","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-07","time":"13:00","type":"Drink","description":"Water (~1 L)","calories":"0","protein":"0","carbs":"0","fat":"0"},{"date":"2026-03-07","time":"14:30","type":"Lunch","description":"Chicken wrap","calories":"~350","protein":"~24","carbs":"~26","fat":"~16"},{"date":"2026-03-07","time":"16:00","type":"Drink","description":"Chai latte","calories":"~190","protein":"~4","carbs":"~29","fat":"~5"},{"date":"2026-03-07","time":"19:00","type":"Dinner","description":"Asian beef bowl","calories":"~550","protein":"~34","carbs":"~65","fat":"~16"},{"date":"2026-03-08","time":"09:00","type":"Drink","description":"Okra water (~1 L)","calories":"0–20","protein":"0","carbs":"0–4","fat":"0"},{"date":"2026-03-08","time":"09:30","type":"Breakfast","description":"Chicken wrap","calories":"~350","protein":"~24","carbs":"~26","fat":"~16"},{"date":"2026-03-08","time":"12:00","type":"Drink","description":"Chai latte","calories":"~190","protein":"~4","carbs":"~29","fat":"~5"},{"date":"2026-03-08","time":"12:00","type":"Snack","description":"4 Woolworths mini chicken fillets","calories":"~200","protein":"~32","carbs":"~4","fat":"~4"},{"date":"2026-03-08","time":"14:30","type":"Lunch","description":"Asian beef bowl","calories":"~550","protein":"~34","carbs":"~65","fat":"~16"},{"date":"2026-03-08","time":"18:00","type":"Snack","description":"9 Woolworths chicken nuggets","calories":"~420","protein":"~24","carbs":"~26","fat":"~26"},{"date":"2026-03-09","time":"10:30","type":"Drink","description":"Nespresso, xylitol, sugar-free almond milk","calories":"~10","protein":"0","carbs":"~1","fat":"0"},{"date":"2026-03-09","time":"12:00","type":"Lunch","description":"Omelette: 2 eggs, 1 egg white, ham (3 slices), cherry tomatoes, cottage cheese","calories":"~300","protein":"~32","carbs":"~4","fat":"~18"},{"date":"2026-03-09","time":"12:00","type":"Drink","description":"Nespresso, xylitol, sugar-free almond milk","calories":"~10","protein":"0","carbs":"~1","fat":"0"},{"date":"2026-03-09","time":"13:30","type":"Snack","description":"3.5 Woolworths mini chicken fillets","calories":"~175","protein":"~28","carbs":"~3","fat":"~4"},{"date":"2026-03-09","time":"14:10","type":"Snack","description":"4 small Brazil nuts","calories":"~75","protein":"~2","carbs":"~2","fat":"~8"},{"date":"2026-03-09","time":"19:30","type":"Dinner","description":"Air fried chicken schnitzel wrap — tomato, lettuce, mayo, peri peri","calories":"~520","protein":"~32","carbs":"~33","fat":"~26"}],"daily":{},"weekly":{}};
+const BUILD_TIME = '2026-03-10T12:00:33.140Z';
 
-// Public CORS proxies — tried in order until one works
-const PROXIES = [
-  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-];
+// ─── SETUP ───
+document.getElementById('buildTime').textContent =
+  BUILD_TIME !== '__BUILD_TIME__'
+    ? 'Updated ' + new Date(BUILD_TIME).toLocaleDateString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+    : '';
 
-const ALL_WEEKS = ["2026-03-03","2026-03-10","2026-03-17","2026-03-24","2026-03-31","2026-04-07","2026-04-14","2026-04-21","2026-04-28","2026-05-05","2026-05-12","2026-05-19","2026-05-26","2026-06-02","2026-06-09","2026-06-16","2026-06-23","2026-06-30","2026-07-07","2026-07-14","2026-07-21","2026-07-28","2026-08-04","2026-08-11","2026-08-18","2026-08-25","2026-09-01","2026-09-08","2026-09-15","2026-09-22","2026-09-29","2026-10-06","2026-10-13","2026-10-20","2026-10-27","2026-11-03","2026-11-10","2026-11-17","2026-11-24","2026-12-01","2026-12-08","2026-12-15","2026-12-22","2026-12-29"];
-
-const TYPE_META={
-  Breakfast:{bg:"#fef9c3",border:"#ca8a04",text:"#854d0e"},
-  Lunch:{bg:"#dcfce7",border:"#16a34a",text:"#14532d"},
-  Dinner:{bg:"#ede9fe",border:"#7c3aed",text:"#4c1d95"},
-  Snack:{bg:"#ffedd5",border:"#ea580c",text:"#7c2d12"},
-  Drink:{bg:"#e0f2fe",border:"#0284c7",text:"#0c4a6e"},
-  Supplement:{bg:"#fce7f3",border:"#db2777",text:"#831843"},
-};
-const TYPES=["Breakfast","Lunch","Dinner","Snack","Drink","Supplement"];
-
-let entries=[], daily={}, weekly={}, dateIdx=0, weekIdx=0, currentTab="log";
-let workingProxy = 0;
-
-// ── Notion API via CORS proxy ───────────────────────────────────────────────
-async function notionPost(path, body){
-  const notionUrl = `https://api.notion.com${path}`;
-  const reqBody   = JSON.stringify(body||{});
-
-  for(let i = 0; i < PROXIES.length; i++){
-    const idx = (workingProxy + i) % PROXIES.length;
-    try {
-      const res = await fetch(PROXIES[idx](notionUrl), {
-        method:"POST",
-        headers:{
-          "Authorization":"Bearer "+TOKEN,
-          "Notion-Version":"2022-06-28",
-          "Content-Type":"application/json",
-          "x-requested-with":"XMLHttpRequest"
-        },
-        body: reqBody
-      });
-      if(res.ok){
-        workingProxy = idx; // remember what worked
-        return await res.json();
-      }
-    } catch(e){ /* try next proxy */ }
-  }
-  throw new Error("All proxies failed — check your connection and try again.");
-}
-
-async function queryDB(dbId){
-  let results=[], cursor=null;
-  do {
-    const body = {page_size:100};
-    if(cursor) body.start_cursor = cursor;
-    const data = await notionPost(`/v1/databases/${dbId}/query`, body);
-    results = results.concat(data.results||[]);
-    cursor  = data.has_more ? data.next_cursor : null;
-  } while(cursor);
-  return results;
-}
-
-function prop(page, name){
-  const p = page.properties?.[name];
-  if(!p) return "";
-  if(p.type==="title")     return p.title?.map(t=>t.plain_text).join("")||"";
-  if(p.type==="rich_text") return p.rich_text?.map(t=>t.plain_text).join("")||"";
-  if(p.type==="select")    return p.select?.name||"";
-  if(p.type==="date")      return p.date?.start||"";
-  if(p.type==="number")    return p.number!=null?String(p.number):"";
-  return "";
-}
-
-// ── Load ───────────────────────────────────────────────────────────────────
-async function loadAll(){
-  document.getElementById("content").innerHTML = '<div class="loading"><div class="spinner"></div><div>Loading your food log...</div></div>';
-  try {
-    const [rawE, rawD, rawW] = await Promise.all([
-      queryDB(DB_ENTRIES),
-      queryDB(DB_DAILY),
-      queryDB(DB_WEEKLY),
-    ]);
-
-    entries = rawE.map(p=>({
-      id:p.id, date:prop(p,"Date"), time:prop(p,"Time"),
-      type:prop(p,"Type"), description:prop(p,"Description"),
-      calories:prop(p,"Calories"), protein:prop(p,"Protein"),
-      carbs:prop(p,"Carbs"), fat:prop(p,"Fat"),
-    })).filter(e=>e.date).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
-
-    daily = {};
-    rawD.forEach(p=>{
-      const d=prop(p,"Date"); if(!d) return;
-      daily[d]={
-        steps:prop(p,"Steps"), exercise:prop(p,"Exercise"),
-        symptoms:prop(p,"Symptoms"), meds:prop(p,"Medication"),
-        cal:prop(p,"Total Calories"), pro:prop(p,"Total Protein"),
-        carb:prop(p,"Total Carbs"), fat:prop(p,"Total Fat"),
-      };
-    });
-
-    weekly={};
-    ALL_WEEKS.forEach(w=>weekly[w]={weight:null,weightDisplay:"",avgCal:null,avgCalDisplay:"",avgSteps:null,avgStepsDisplay:"",avgPro:null,avgProDisplay:"",avgCarb:null,avgCarbDisplay:"",avgFat:null,avgFatDisplay:"",exerciseDays:null});
-    rawW.forEach(p=>{
-      const w=prop(p,"Week"); if(!w||!weekly[w]) return;
-      const wt=prop(p,"Weight (kg)");
-      weekly[w]={
-        weightDisplay:wt, weight:wt?parseFloat(wt.replace(/[^0-9.]/g,""))||null:null,
-        avgCalDisplay:prop(p,"Avg Calories"), avgCal:parseFloat((prop(p,"Avg Calories")||"").replace(/[^0-9.]/g,""))||null,
-        avgStepsDisplay:prop(p,"Avg Steps"), avgSteps:parseFloat((prop(p,"Avg Steps")||"").replace(/[^0-9.]/g,""))||null,
-        avgProDisplay:prop(p,"Avg Protein"), avgPro:parseFloat((prop(p,"Avg Protein")||"").replace(/[^0-9.]/g,""))||null,
-        avgCarbDisplay:prop(p,"Avg Carbs"), avgCarb:parseFloat((prop(p,"Avg Carbs")||"").replace(/[^0-9.]/g,""))||null,
-        avgFatDisplay:prop(p,"Avg Fat"), avgFat:parseFloat((prop(p,"Avg Fat")||"").replace(/[^0-9.]/g,""))||null,
-        exerciseDays:prop(p,"Exercise Days")||null,
-      };
-    });
-
-    const dates=allDates();
-    dateIdx = dates.length>0 ? dates.length-1 : 0;
-    weekIdx = 0;
-
-    const now=new Date();
-    document.getElementById("last-updated").textContent =
-      "Updated "+now.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-
-    render();
-  } catch(err){
-    document.getElementById("content").innerHTML =
-      `<div class="error-box">⚠️ ${err.message}</div>
-       <button class="retry-btn" onclick="loadAll()">Try again</button>`;
-  }
-}
-
-// ── Helpers ────────────────────────────────────────────────────────────────
-function allDates(){ return[...new Set(entries.map(e=>e.date))].sort(); }
-function selDate(){ const d=allDates(); return d[dateIdx]||d[0]; }
-function selWeek(){ return ALL_WEEKS[weekIdx]; }
-function getInfo(){ return daily[selDate()]||{steps:"",exercise:"",symptoms:"",meds:"",cal:"",pro:"",carb:"",fat:""}; }
-function fmtDate(d){ return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}); }
-function fmtShort(d){ return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}); }
-function fmtWeek(d){ const s=new Date(d+"T12:00:00"),e=new Date(s);e.setDate(e.getDate()+6); return s.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" – "+e.toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }
-function fmtWeekShort(d){ return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }
-function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-
-// ── Tabs ───────────────────────────────────────────────────────────────────
-function setTab(tab){
-  currentTab=tab;
-  ["log","week","summary"].forEach(t=>document.getElementById("tab-"+t).className="tab "+(t===tab?"on":"off"));
-  render();
-}
-function render(){
-  const c=document.getElementById("content");
-  if(currentTab==="log")       c.innerHTML=renderLog();
-  else if(currentTab==="week") c.innerHTML=renderWeek();
-  else{ c.innerHTML=renderSummary(); requestAnimationFrame(()=>drawCharts()); }
-}
-
-// ── Daily ──────────────────────────────────────────────────────────────────
-function renderLog(){
-  const dates=allDates(),date=selDate(),info=getInfo();
-  const dayE=entries.filter(e=>e.date===date).sort((a,b)=>a.time.localeCompare(b.time));
-  const groups=TYPES.filter(t=>dayE.some(e=>e.type===t)).map(type=>{
-    const m=TYPE_META[type];
-    const rows=dayE.filter(e=>e.type===type).map(e=>{
-      const pills=[
-        e.calories&&e.calories!=="0"?`<span class="macro-pill">🔥 ${esc(e.calories)} kcal</span>`:"",
-        e.protein&&e.protein!=="0"?`<span class="macro-pill">P ${esc(e.protein)}g</span>`:"",
-        e.carbs&&e.carbs!=="0"?`<span class="macro-pill">C ${esc(e.carbs)}g</span>`:"",
-        e.fat&&e.fat!=="0"?`<span class="macro-pill">F ${esc(e.fat)}g</span>`:"",
-      ].join("");
-      return`<div class="entry-row"><div class="entry-time">${esc(e.time)||"—"}</div><div class="entry-body"><div class="entry-desc">${esc(e.description)}</div><div class="entry-macros">${pills}</div></div></div>`;
-    }).join("");
-    return`<div class="meal-group"><div class="meal-header" style="background:${m.bg};border-left-color:${m.border}"><div class="meal-dot" style="background:${m.text}"></div><span class="meal-title">${type}</span></div>${rows}</div>`;
-  }).join("");
-  return`
-    <div class="nav-bar">
-      <button class="arrow" onclick="prevDay()" ${dateIdx===0?"disabled":""}>‹</button>
-      <div class="nav-center"><div class="nav-main">${fmtDate(date)}</div><div class="nav-sub">Day ${dateIdx+1} of ${dates.length}</div></div>
-      <button class="arrow" onclick="nextDay()" ${dateIdx>=dates.length-1?"disabled":""}>›</button>
-    </div>
-    <div class="banner"><div class="banner-label">Daily Totals</div><div class="banner-grid">
-      ${[{k:"cal",l:"Calories"},{k:"pro",l:"Protein g"},{k:"carb",l:"Carbs g"},{k:"fat",l:"Fat g"}].map(({k,l})=>`<div class="banner-col"><div class="banner-val">${esc(info[k])||"—"}</div><div class="banner-lbl">${l}</div></div>`).join("")}
-    </div></div>
-    <div class="meta-row">
-      <div class="meta-box"><div class="meta-box-label">👟 Steps</div><div class="${info.steps?"meta-box-value":"meta-box-empty"}">${info.steps?Number(info.steps).toLocaleString():"Not logged"}</div></div>
-      <div class="meta-box"><div class="meta-box-label">🏃 Exercise</div><div class="${info.exercise?"meta-box-value":"meta-box-empty"}">${info.exercise?esc(info.exercise):"Rest day"}</div></div>
-    </div>
-    <div class="meta-row" style="margin-bottom:14px">
-      <div class="meta-box"><div class="meta-box-label">🩺 Symptoms</div><div class="${info.symptoms?"meta-box-value":"meta-box-empty"}">${info.symptoms?esc(info.symptoms):"None"}</div></div>
-      <div class="meta-box"><div class="meta-box-label">💊 Medication</div><div class="${info.meds?"meta-box-value":"meta-box-empty"}">${info.meds?esc(info.meds):"None"}</div></div>
-    </div>
-    ${dayE.length===0?'<div class="empty">No entries for this day yet.</div>':groups}`;
-}
-
-// ── Week ───────────────────────────────────────────────────────────────────
-function renderWeek(){
-  const wk=selWeek(),wi=weekly[wk]||{};
-  const wS=new Date(wk+"T12:00:00"),wE=new Date(wS);wE.setDate(wE.getDate()+6);
-  const wkDates=allDates().filter(d=>{const dt=new Date(d+"T12:00:00");return dt>=wS&&dt<=wE;}).reverse();
-  const cards=wkDates.length>0?wkDates.map(d=>{
-    const di=daily[d]||{};
-    return`<div class="week-card" onclick="goToDay('${d}')">
-      <div class="week-primary">
-        <div><div class="week-date">${fmtShort(d)}</div>
-          ${di.cal?`<div class="week-cals">${esc(di.cal)}</div><div class="week-cals-label">kcal</div>`:"<div style='font-size:12px;color:#94a3b8'>Calories not logged</div>"}
-        </div>
-        <div>${di.steps?`<div class="week-steps">${Number(di.steps).toLocaleString()}</div><div class="week-steps-label">steps</div>`:"<div style='font-size:12px;color:#94a3b8;text-align:right'>Steps not logged</div>"}</div>
-      </div>
-      ${(di.pro||di.carb||di.fat)?`<div class="week-macros-row">
-        ${di.pro?`<div class="macro-box"><div class="macro-box-val">${esc(di.pro)}g</div><div class="macro-box-lbl">Protein</div></div>`:""}
-        ${di.carb?`<div class="macro-box"><div class="macro-box-val">${esc(di.carb)}g</div><div class="macro-box-lbl">Carbs</div></div>`:""}
-        ${di.fat?`<div class="macro-box"><div class="macro-box-val">${esc(di.fat)}g</div><div class="macro-box-lbl">Fat</div></div>`:""}
-      </div>`:""}
-      ${(di.exercise||di.symptoms||di.meds)?`<hr class="week-divider"/>
-        ${di.exercise?`<div class="week-detail week-exercise">🏃 ${esc(di.exercise)}</div>`:""}
-        ${di.symptoms?`<div class="week-detail week-symptoms">🩺 ${esc(di.symptoms)}</div>`:""}
-        ${di.meds?`<div class="week-detail week-meds">💊 ${esc(di.meds)}</div>`:""}
-      `:""}
-    </div>`;
-  }).join(""):`<div class="empty">No entries logged for this week yet.</div>`;
-  return`
-    <div class="nav-bar">
-      <button class="arrow" onclick="prevWeek()" ${weekIdx===0?"disabled":""}>‹</button>
-      <div class="nav-center"><div class="nav-main">${fmtWeek(wk)}</div><div class="nav-sub">Week ${weekIdx+1} of ${ALL_WEEKS.length}</div></div>
-      <button class="arrow" onclick="nextWeek()" ${weekIdx>=ALL_WEEKS.length-1?"disabled":""}>›</button>
-    </div>
-    ${wi.weight?`<div style="margin-bottom:10px"><span class="week-weight-badge">⚖️ ${esc(wi.weightDisplay)} kg this week</span></div>`:""}
-    ${cards}`;
-}
-
-// ── Summary ────────────────────────────────────────────────────────────────
-function renderSummary(){
-  const populated=ALL_WEEKS.filter(w=>weekly[w]?.avgCal||weekly[w]?.weight);
-  const latest=weekly[populated[populated.length-1]]||{};
-  return`
-    <div style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:4px">Health Summary</div>
-    <div style="font-size:12px;color:#94a3b8;margin-bottom:16px">${populated.length} week${populated.length!==1?"s":""} of data · ${ALL_WEEKS.length} weeks tracked this year</div>
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-val">${latest.avgCalDisplay||"—"}</div><div class="stat-lbl">Latest Avg Cal</div></div>
-      <div class="stat-box"><div class="stat-val">${latest.avgStepsDisplay||"—"}</div><div class="stat-lbl">Latest Avg Steps</div></div>
-      <div class="stat-box"><div class="stat-val">${latest.exerciseDays!=null?latest.exerciseDays:"—"}</div><div class="stat-lbl">Exercise Days</div></div>
-    </div>
-    <div class="chart-card primary">
-      <div class="chart-title">⚖️ Weight</div>
-      <div class="chart-subtitle">Weekly weight in kg — tap a point to see the value</div>
-      <div class="chart-wrap" id="wrap-weight"><svg class="chart" id="svg-weight" height="200"></svg></div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">🔥 Calories &amp; 👟 Steps</div>
-      <div class="chart-subtitle">Weekly averages — tap a point to see the value</div>
-      <div class="chart-wrap" id="wrap-calsteps"><svg class="chart" id="svg-calsteps" height="160"></svg></div>
-      <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#0f766e"></div>Avg Calories</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#0284c7"></div>Avg Steps ÷ 10</div>
-      </div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">🥗 Macros</div>
-      <div class="chart-subtitle">Average weekly protein, carbs &amp; fat (g) — tap a point to see the value</div>
-      <div class="chart-wrap" id="wrap-macros"><svg class="chart" id="svg-macros" height="160"></svg></div>
-      <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Protein</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Carbs</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Fat</div>
-      </div>
-    </div>`;
-}
-
-// ── Charts ─────────────────────────────────────────────────────────────────
-function drawCharts(){
-  const wData=ALL_WEEKS.map(w=>({...weekly[w],wk:w}));
-  const labels=ALL_WEEKS.map(w=>fmtWeekShort(w));
-  drawChart("svg-weight","wrap-weight",labels,200,[
-    {values:wData.map(w=>w.weight),color:"#0f766e",label:"Weight",sw:3,ds:7,fmt:v=>v!=null?v+" kg":null}
-  ]);
-  drawChart("svg-calsteps","wrap-calsteps",labels,160,[
-    {values:wData.map(w=>w.avgCal),color:"#0f766e",label:"Avg Calories",sw:2,ds:5,fmt:v=>v!=null?Math.round(v)+" kcal":null},
-    {values:wData.map((w,i)=>w.avgSteps!=null?w.avgSteps/10:null),color:"#0284c7",label:"Avg Steps",sw:2,ds:5,fmt:(v,i)=>wData[i]?.avgSteps!=null?Math.round(wData[i].avgSteps).toLocaleString()+" steps":null},
-  ]);
-  drawChart("svg-macros","wrap-macros",labels,160,[
-    {values:wData.map(w=>w.avgPro), color:"#dc2626",label:"Protein",sw:2,ds:4,fmt:v=>v!=null?v+"g protein":null},
-    {values:wData.map(w=>w.avgCarb),color:"#d97706",label:"Carbs",  sw:2,ds:4,fmt:v=>v!=null?v+"g carbs":null},
-    {values:wData.map(w=>w.avgFat), color:"#7c3aed",label:"Fat",    sw:2,ds:4,fmt:v=>v!=null?v+"g fat":null},
-  ]);
-}
-
-function drawChart(svgId,wrapId,labels,height,series){
-  const svg=document.getElementById(svgId),wrap=document.getElementById(wrapId);
-  if(!svg||!wrap)return;
-  const W=wrap.clientWidth||320;
-  svg.setAttribute("viewBox",`0 0 ${W} ${height}`);
-  svg.setAttribute("width",W);svg.setAttribute("height",height);
-  const pad={l:40,r:12,t:16,b:32},iW=W-pad.l-pad.r,iH=height-pad.t-pad.b,n=labels.length;
-  const allV=series.flatMap(s=>s.values).filter(v=>v!=null);
-  let minV=0,maxV=100;
-  if(allV.length){minV=Math.min(...allV);maxV=Math.max(...allV);const r=maxV-minV||10;minV-=r*0.12;maxV+=r*0.12;}
-  const xP=i=>pad.l+(n<=1?iW/2:i*(iW/(n-1)));
-  const yP=v=>pad.t+iH-((v-minV)/(maxV-minV))*iH;
-  let html="";
-  for(let g=0;g<=4;g++){const frac=g/4,y=pad.t+iH*frac,val=maxV-(maxV-minV)*frac;html+=`<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W-pad.r}" y2="${y.toFixed(1)}" stroke="#f1f5f9" stroke-width="1"/><text x="${pad.l-5}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${Math.round(val)}</text>`;}
-  const step=Math.max(1,Math.round(n/6));
-  labels.forEach((l,i)=>{if(i%step!==0&&i!==n-1)return;html+=`<text x="${xP(i).toFixed(1)}" y="${height-6}" text-anchor="middle" font-size="9" fill="#94a3b8">${l}</text>`;});
-  const today=new Date(),fi=ALL_WEEKS.findIndex(w=>new Date(w+"T12:00:00")>today);
-  if(fi>0&&fi<n){const fx=xP(fi);html+=`<rect x="${fx}" y="${pad.t}" width="${W-pad.r-fx}" height="${iH}" fill="#f8fafc" opacity="0.7"/><line x1="${fx}" y1="${pad.t}" x2="${fx}" y2="${pad.t+iH}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,3"/>`;}
-  series.forEach(s=>{let d="",ln=true;s.values.forEach((v,i)=>{if(v==null){ln=true;return;}const x=xP(i),y=yP(v);d+=(ln?`M ${x.toFixed(1)} ${y.toFixed(1)} `:`L ${x.toFixed(1)} ${y.toFixed(1)} `);ln=false;});if(d)html+=`<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${s.sw}" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`;});
-  series.forEach(s=>{
-    s.values.forEach((v,i)=>{
-      if(v==null)return;
-      const x=xP(i),y=yP(v),ds=s.ds||5;
-      const tl=series.map(ss=>{const sv=ss.values[i];if(sv==null)return"";const d=ss.fmt?ss.fmt(sv,i):String(sv);return d?`${ss.color}|${ss.label}|${d}`:"";}).filter(Boolean).join(";;").replace(/"/g,"&quot;");
-      const wl=labels[i];
-      html+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${ds}" fill="${s.color}" stroke="white" stroke-width="2" style="cursor:pointer" data-week="${wl}" data-lines="${tl}" onmouseenter="dotEnter(event,this)" ontouchstart="dotEnter(event,this);event.preventDefault()" onmouseleave="dotLeave()"/>`;
-      html+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${ds+10}" fill="transparent" style="cursor:pointer" data-week="${wl}" data-lines="${tl}" onmouseenter="dotEnter(event,this)" ontouchstart="dotEnter(event,this);event.preventDefault()" onmouseleave="dotLeave()"/>`;
-    });
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('view-' + tab.dataset.view).classList.add('active');
   });
-  svg.innerHTML=html;
+});
+
+// ─── HELPERS ───
+function parseNum(s) {
+  if (!s) return null;
+  const n = parseFloat(String(s).replace(/[^0-9.]/g, ''));
+  return isNaN(n) ? null : n;
 }
 
-let ttT=null;
-function dotEnter(e,el){
-  clearTimeout(ttT);
-  const tt=document.getElementById("chart-tt");
-  let inner=`<div class="tt-label">${el.getAttribute("data-week")}</div>`;
-  const lr=el.getAttribute("data-lines");
-  if(lr)lr.split(";;").forEach(p=>{const[c,l,v]=p.split("|");if(v)inner+=`<div class="tt-row"><div class="tt-dot" style="background:${c}"></div><span class="tt-val">${v}</span></div>`;});
-  tt.innerHTML=inner;
-  let cx,cy;
-  if(e.touches?.length>0){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}else{cx=e.clientX;cy=e.clientY;}
-  tt.style.opacity="0";tt.classList.add("show");
-  const tw=tt.offsetWidth,th=tt.offsetHeight;
-  let left=cx-tw/2,top=cy-th-14;
-  if(left<8)left=8;if(left+tw>window.innerWidth-8)left=window.innerWidth-tw-8;
-  if(top<8)top=cy+20;
-  tt.style.left=left+"px";tt.style.top=top+"px";tt.style.opacity="1";
+function fmtDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 }
-function dotLeave(){ttT=setTimeout(()=>{document.getElementById("chart-tt")?.classList.remove("show");},300);}
-document.addEventListener("touchstart",e=>{if(!e.target.closest("circle"))dotLeave();});
 
-// ── Nav ────────────────────────────────────────────────────────────────────
-function prevDay(){if(dateIdx>0){dateIdx--;render();}}
-function nextDay(){const d=allDates();if(dateIdx<d.length-1){dateIdx++;render();}}
-function prevWeek(){if(weekIdx>0){weekIdx--;render();}}
-function nextWeek(){if(weekIdx<ALL_WEEKS.length-1){weekIdx++;render();}}
-function goToDay(d){const i=allDates().indexOf(d);if(i>=0){dateIdx=i;setTab("log");}}
+function shortDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
 
-loadAll();
+function dayName(dateStr) {
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long' });
+}
+
+function progressBar(pct, cls) {
+  return `<div class="progress-bar"><div class="progress-fill ${cls}" style="width:${Math.min(100,pct)}%"></div></div>`;
+}
+
+// ─── DATA PREP ───
+const entries = RAW.entries || [];
+const daily   = RAW.daily   || {};
+const weekly  = RAW.weekly  || {};
+
+// Get sorted unique dates
+const allDates = [...new Set(entries.map(e => e.date))].sort();
+// Also include daily info dates not in entries
+Object.keys(daily).forEach(d => { if (!allDates.includes(d)) allDates.push(d); });
+allDates.sort();
+
+// ─── DAILY VIEW ───
+let dayIdx = allDates.length - 1; // start on most recent
+
+function renderDaily() {
+  if (allDates.length === 0) {
+    document.getElementById('dailyContent').innerHTML = '<div class="empty"><div class="empty-icon">🥗</div><div class="empty-text">No entries yet</div></div>';
+    return;
+  }
+
+  const date = allDates[dayIdx];
+  const d = daily[date] || {};
+  const dayEntries = entries.filter(e => e.date === date).sort((a,b) => (a.time||'').localeCompare(b.time||''));
+
+  document.getElementById('dayTitle').textContent = new Date(date + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+  document.getElementById('daySubtitle').textContent = new Date(date + 'T12:00:00').getFullYear();
+
+  document.getElementById('dayPrev').disabled = dayIdx <= 0;
+  document.getElementById('dayNext').disabled = dayIdx >= allDates.length - 1;
+
+  // Totals
+  const totalCal   = parseNum(d.cal);
+  const totalSteps = parseNum(d.steps);
+  const totalPro   = parseNum(d.pro);
+  const totalCarb  = parseNum(d.carb);
+  const totalFat   = parseNum(d.fat);
+
+  const calGood   = totalCal !== null && totalCal <= 1700;
+  const stepsGood = totalSteps !== null && totalSteps >= 10000;
+
+  let html = '';
+
+  // Summary
+  html += `<div class="summary-card">`;
+  html += `<div class="metrics-grid">`;
+
+  // Calories
+  if (totalCal !== null) {
+    const pct = (totalCal / 1700) * 100;
+    html += `<div class="metric ${calGood ? 'good' : 'bad'}">
+      <div class="metric-label">Calories</div>
+      <div class="metric-val">${Math.round(totalCal)}</div>
+      <div class="metric-sub">Goal: under 1,700</div>
+      <div class="metric-icon">${calGood ? '✅' : '❌'}</div>
+      ${progressBar(pct, calGood ? 'fill-good' : 'fill-bad')}
+    </div>`;
+  } else {
+    html += `<div class="metric info"><div class="metric-label">Calories</div><div class="metric-val" style="font-size:16px;color:var(--muted)">—</div></div>`;
+  }
+
+  // Steps
+  if (totalSteps !== null) {
+    const pct = (totalSteps / 10000) * 100;
+    html += `<div class="metric ${stepsGood ? 'good' : 'bad'}">
+      <div class="metric-label">Steps</div>
+      <div class="metric-val">${totalSteps.toLocaleString()}</div>
+      <div class="metric-sub">Goal: 10,000+</div>
+      <div class="metric-icon">${stepsGood ? '✅' : '❌'}</div>
+      ${progressBar(pct, stepsGood ? 'fill-good' : 'fill-steel')}
+    </div>`;
+  } else {
+    html += `<div class="metric info"><div class="metric-label">Steps</div><div class="metric-val" style="font-size:16px;color:var(--muted)">—</div></div>`;
+  }
+
+  html += `</div>`; // metrics-grid
+
+  // Macros
+  html += `<div class="macros-row">
+    <div class="mpill p"><span class="mpill-label">Protein</span><span class="mpill-val">${totalPro !== null ? Math.round(totalPro)+'g' : '—'}</span></div>
+    <div class="mpill c"><span class="mpill-label">Carbs</span><span class="mpill-val">${totalCarb !== null ? Math.round(totalCarb)+'g' : '—'}</span></div>
+    <div class="mpill f"><span class="mpill-label">Fat</span><span class="mpill-val">${totalFat !== null ? Math.round(totalFat)+'g' : '—'}</span></div>
+  </div>`;
+
+  html += `</div>`; // summary-card
+
+  // Info strip
+  const infoItems = [];
+  if (d.exercise) infoItems.push(`<div class="info-item"><span class="ii-icon">🏃</span><div class="ii-body"><strong>Exercise:</strong> ${d.exercise}</div></div>`);
+  if (d.meds)     infoItems.push(`<div class="info-item"><span class="ii-icon">💊</span><div class="ii-body"><strong>Medication:</strong> ${d.meds}</div></div>`);
+  if (d.symptoms) infoItems.push(`<div class="info-item"><span class="ii-icon">🩺</span><div class="ii-body"><strong>Symptoms:</strong> ${d.symptoms}</div></div>`);
+  if (infoItems.length) html += `<div class="info-strip">${infoItems.join('')}</div>`;
+
+  // Meals
+  if (dayEntries.length > 0) {
+    html += `<div class="section-label">Meals &amp; food</div>`;
+    dayEntries.forEach(e => {
+      const macros = [];
+      if (e.protein) macros.push(`<span class="mtag">P ${e.protein}g</span>`);
+      if (e.carbs)   macros.push(`<span class="mtag">C ${e.carbs}g</span>`);
+      if (e.fat)     macros.push(`<span class="mtag">F ${e.fat}g</span>`);
+      html += `<div class="meal-card t-${e.type || 'Snack'}">
+        <div class="meal-top">
+          <div class="meal-desc">${e.description || '—'}</div>
+          <div class="meal-cal">${e.calories ? e.calories + ' kcal' : ''}</div>
+        </div>
+        <div class="meal-bottom">
+          ${e.time ? `<span class="meal-time">${e.time}</span>` : ''}
+          <span class="type-chip">${e.type || ''}</span>
+          ${macros.join('')}
+        </div>
+      </div>`;
+    });
+  } else {
+    html += `<div class="empty"><div class="empty-icon">🍽️</div><div class="empty-text">No meals logged for this day</div></div>`;
+  }
+
+  document.getElementById('dailyContent').innerHTML = html;
+}
+
+document.getElementById('dayPrev').addEventListener('click', () => { dayIdx--; renderDaily(); });
+document.getElementById('dayNext').addEventListener('click', () => { dayIdx++; renderDaily(); });
+
+// ─── WEEKLY VIEW ───
+const weekKeys = Object.keys(weekly).sort();
+// Also build weeks from daily data
+const dailyDates = Object.keys(daily).sort();
+function getWeekStart(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  return d.toISOString().slice(0, 10);
+}
+const allWeekStarts = [...new Set(allDates.map(getWeekStart))].sort();
+let weekIdx = allWeekStarts.length - 1;
+
+function renderWeekly() {
+  if (allWeekStarts.length === 0) {
+    document.getElementById('weeklyContent').innerHTML = '<div class="no-data-msg">No data available</div>';
+    return;
+  }
+
+  const ws = allWeekStarts[weekIdx];
+  const we = new Date(ws + 'T12:00:00');
+  we.setDate(we.getDate() + 6);
+  const weStr = we.toISOString().slice(0, 10);
+
+  document.getElementById('weekTitle').textContent =
+    new Date(ws + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short' }) + ' – ' +
+    we.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  document.getElementById('weekSubtitle').textContent = 'Week of ' + new Date(ws + 'T12:00:00').toLocaleDateString('en-GB', { month:'long' });
+
+  document.getElementById('weekPrev').disabled = weekIdx <= 0;
+  document.getElementById('weekNext').disabled = weekIdx >= allWeekStarts.length - 1;
+
+  // Find matching weekly summary
+  const wData = weekly[ws] || weekly[Object.keys(weekly).find(k => k >= ws && k <= weStr)] || null;
+
+  // Days in this week
+  const weekDays = allDates.filter(d => d >= ws && d <= weStr);
+
+  let calGoalDays = 0, stepGoalDays = 0, exerciseDays = 0;
+  weekDays.forEach(d => {
+    const di = daily[d] || {};
+    const c = parseNum(di.cal); const s = parseNum(di.steps);
+    if (c !== null && c <= 1700) calGoalDays++;
+    if (s !== null && s >= 10000) stepGoalDays++;
+    if (di.exercise) exerciseDays++;
+  });
+
+  let html = '';
+
+  // Week summary bar
+  html += `<div class="week-summary">`;
+  if (wData && wData.weight) {
+    html += `<div style="text-align:center;font-family:'DM Mono',monospace;font-size:13px;color:var(--steel);margin-bottom:10px;">⚖️ ${wData.weight} kg</div>`;
+  }
+  html += `<div class="week-stats">`;
+  html += `<div class="wstat"><span class="wstat-val">${wData && wData.avgCal ? Math.round(wData.avgCal) : '—'}</span><span class="wstat-label">Avg Cal</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val">${wData && wData.avgSteps ? Math.round(wData.avgSteps).toLocaleString() : '—'}</span><span class="wstat-label">Avg Steps</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val ${calGoalDays >= 4 ? 'good' : 'bad'}">${calGoalDays}/7</span><span class="wstat-label">Cal Goal Days</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val ${stepGoalDays >= 4 ? 'good' : 'bad'}">${stepGoalDays}/7</span><span class="wstat-label">Step Goal Days</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val">${exerciseDays}</span><span class="wstat-label">Exercise Days</span></div>`;
+  html += `<div class="wstat"><span class="wstat-val" style="color:#81c784">${wData && wData.avgPro ? Math.round(wData.avgPro)+'g' : '—'}</span><span class="wstat-label">Avg Protein</span></div>`;
+  html += `</div>`; // week-stats
+  html += `</div>`; // week-summary
+
+  // Daily cards
+  weekDays.forEach(date => {
+    const d = daily[date] || {};
+    const cal = parseNum(d.cal);
+    const steps = parseNum(d.steps);
+    const pro = parseNum(d.pro);
+    const carb = parseNum(d.carb);
+    const fat = parseNum(d.fat);
+    const calOk = cal !== null && cal <= 1700;
+    const stepsOk = steps !== null && steps >= 10000;
+
+    html += `<div class="daily-card">
+      <div class="daily-card-header">
+        <div class="daily-date-block">
+          <div class="daily-dayname">${dayName(date)}</div>
+          <div class="daily-datestr">${shortDate(date)}</div>
+        </div>
+        <div class="daily-badges">
+          ${cal !== null ? `<span class="goal-badge ${calOk ? 'good' : 'bad'}">${Math.round(cal)} kcal</span>` : ''}
+          ${steps !== null ? `<span class="goal-badge ${stepsOk ? 'good' : 'neutral'}">${steps.toLocaleString()} 👟</span>` : ''}
+        </div>
+      </div>
+      <div class="daily-macros">
+        <div class="mpill p"><span class="mpill-label">Protein</span><span class="mpill-val">${pro !== null ? Math.round(pro)+'g' : '—'}</span></div>
+        <div class="mpill c"><span class="mpill-label">Carbs</span><span class="mpill-val">${carb !== null ? Math.round(carb)+'g' : '—'}</span></div>
+        <div class="mpill f"><span class="mpill-label">Fat</span><span class="mpill-val">${fat !== null ? Math.round(fat)+'g' : '—'}</span></div>
+      </div>
+      <div class="daily-extras">
+        ${d.exercise ? `<div class="daily-extra-item"><span class="dei">🏃</span>${d.exercise}</div>` : ''}
+        ${d.meds     ? `<div class="daily-extra-item"><span class="dei">💊</span>${d.meds}</div>` : ''}
+        ${d.symptoms ? `<div class="daily-extra-item"><span class="dei">🩺</span>${d.symptoms}</div>` : ''}
+      </div>
+    </div>`;
+  });
+
+  if (weekDays.length === 0) html += '<div class="no-data-msg">No data for this week</div>';
+
+  document.getElementById('weeklyContent').innerHTML = html;
+}
+
+document.getElementById('weekPrev').addEventListener('click', () => { weekIdx--; renderWeekly(); });
+document.getElementById('weekNext').addEventListener('click', () => { weekIdx++; renderWeekly(); });
+
+// ─── TRENDS VIEW ───
+function renderTrends() {
+  let html = '';
+
+  // Weekly trend cards
+  allWeekStarts.slice().reverse().forEach(ws => {
+    const we = new Date(ws + 'T12:00:00');
+    we.setDate(we.getDate() + 6);
+    const weStr = we.toISOString().slice(0, 10);
+    const wData = weekly[ws] || null;
+    const weekDays = allDates.filter(d => d >= ws && d <= weStr);
+    if (weekDays.length === 0 && !wData) return;
+
+    let calGoal = 0, stepGoal = 0, exDays = 0;
+    weekDays.forEach(d => {
+      const di = daily[d] || {};
+      const c = parseNum(di.cal); const s = parseNum(di.steps);
+      if (c !== null && c <= 1700) calGoal++;
+      if (s !== null && s >= 10000) stepGoal++;
+      if (di.exercise) exDays++;
+    });
+
+    const label = new Date(ws + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'short' }) + ' – ' +
+      we.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+
+    html += `<div class="trend-card">
+      <div class="trend-card-header">
+        <span class="trend-week-label">${label}</span>
+        ${wData && wData.weight ? `<span class="trend-weight">⚖️ ${wData.weight} kg</span>` : ''}
+      </div>
+      <div class="trend-bars">`;
+
+    if (wData && wData.avgCal) {
+      const pct = (wData.avgCal / 1700) * 100;
+      const ok = wData.avgCal <= 1700;
+      html += `<div class="tbar">
+        <div class="tbar-header"><span class="tbar-label">Avg Calories</span><span class="tbar-val">${Math.round(wData.avgCal)} / 1,700</span></div>
+        <div class="tbar-track"><div class="tbar-fill ${ok ? 'fill-good' : 'fill-bad'}" style="width:${Math.min(100,pct)}%"></div></div>
+      </div>`;
+    }
+
+    if (wData && wData.avgSteps) {
+      const pct = (wData.avgSteps / 10000) * 100;
+      const ok = wData.avgSteps >= 10000;
+      html += `<div class="tbar">
+        <div class="tbar-header"><span class="tbar-label">Avg Steps</span><span class="tbar-val">${Math.round(wData.avgSteps).toLocaleString()} / 10,000</span></div>
+        <div class="tbar-track"><div class="tbar-fill ${ok ? 'fill-good' : 'fill-steel'}" style="width:${Math.min(100,pct)}%"></div></div>
+      </div>`;
+    }
+
+    if (weekDays.length > 0) {
+      html += `<div class="tbar">
+        <div class="tbar-header"><span class="tbar-label">Calorie Goal Days</span><span class="tbar-val">${calGoal} / 7</span></div>
+        <div class="tbar-track"><div class="tbar-fill ${calGoal >= 4 ? 'fill-good' : 'fill-bad'}" style="width:${(calGoal/7)*100}%"></div></div>
+      </div>
+      <div class="tbar">
+        <div class="tbar-header"><span class="tbar-label">Step Goal Days</span><span class="tbar-val">${stepGoal} / 7</span></div>
+        <div class="tbar-track"><div class="tbar-fill ${stepGoal >= 4 ? 'fill-good' : 'fill-steel'}" style="width:${(stepGoal/7)*100}%"></div></div>
+      </div>`;
+    }
+
+    html += `</div>`; // trend-bars
+
+    // Macro row
+    if (wData && (wData.avgPro || wData.avgCarb || wData.avgFat)) {
+      html += `<div class="macros-row">
+        <div class="mpill p"><span class="mpill-label">Avg Protein</span><span class="mpill-val">${wData.avgPro ? Math.round(wData.avgPro)+'g' : '—'}</span></div>
+        <div class="mpill c"><span class="mpill-label">Avg Carbs</span><span class="mpill-val">${wData.avgCarb ? Math.round(wData.avgCarb)+'g' : '—'}</span></div>
+        <div class="mpill f"><span class="mpill-label">Avg Fat</span><span class="mpill-val">${wData.avgFat ? Math.round(wData.avgFat)+'g' : '—'}</span></div>
+      </div>`;
+    }
+
+    html += `</div>`; // trend-card
+  });
+
+  // ─── CALENDAR ───
+  html += `<div class="cal-section">
+    <div class="cal-title">Year at a glance</div>`;
+
+  const today = new Date();
+  const year = today.getFullYear();
+
+  // Build date status map
+  const dateStatus = {};
+  allDates.forEach(d => {
+    const di = daily[d] || {};
+    const c = parseNum(di.cal);
+    const s = parseNum(di.steps);
+    const calOk   = c !== null && c <= 1700;
+    const stepsOk = s !== null && s >= 10000;
+    const hasData = entries.some(e => e.date === d) || Object.keys(di).some(k => di[k]);
+
+    if (!hasData && c === null && s === null) { dateStatus[d] = 'no-data'; return; }
+    if (calOk && stepsOk) dateStatus[d] = 'both';
+    else if (calOk)       dateStatus[d] = 'cal-only';
+    else if (stepsOk)     dateStatus[d] = 'steps-only';
+    else                  dateStatus[d] = 'neither';
+  });
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  html += `<div class="cal-months">`;
+
+  for (let m = 0; m < 12; m++) {
+    const firstDay = new Date(year, m, 1);
+    const lastDay  = new Date(year, m+1, 0);
+    const startDow = firstDay.getDay(); // 0=Sun
+    const startOffset = startDow === 0 ? 6 : startDow - 1; // Mon=0
+
+    html += `<div class="cal-month">
+      <div class="cal-month-name">${months[m]} ${year}</div>
+      <div class="cal-weekdays">
+        ${['Mo','Tu','We','Th','Fr','Sa','Su'].map(d => `<div class="cal-wd">${d}</div>`).join('')}
+      </div>
+      <div class="cal-grid">`;
+
+    for (let i = 0; i < startOffset; i++) html += `<div class="cal-day empty"></div>`;
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const dateStr = `${year}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const cellDate = new Date(year, m, day);
+      const isFuture = cellDate > today;
+      const status = dateStatus[dateStr];
+
+      let cls = 'no-data';
+      if (isFuture) cls = 'future';
+      else if (status) cls = status;
+
+      html += `<div class="cal-day ${cls}" title="${dateStr}">${day}</div>`;
+    }
+
+    html += `</div></div>`; // cal-grid, cal-month
+  }
+
+  html += `</div>`; // cal-months
+
+  html += `<div class="cal-legend">
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(102,187,106,0.22)"></div>Both goals ✓</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(255,183,77,0.2)"></div>Cal goal only</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(105,172,194,0.2)"></div>Steps only</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(239,83,80,0.18)"></div>Neither</div>
+    <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(255,255,255,0.07)"></div>No data</div>
+  </div>`;
+
+  html += `</div>`; // cal-section
+
+  document.getElementById('trendsContent').innerHTML = html;
+}
+
+// ─── INIT ───
+renderDaily();
+renderWeekly();
+renderTrends();
 </script>
 </body>
 </html>
