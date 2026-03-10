@@ -239,7 +239,7 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--te
 
 /* ══ MISC ══ */
 .trends-wrap { padding: 4px 0 40px; }
-.t-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px 14px; box-shadow: var(--shadow-sm); margin-bottom: 4px; }
+.t-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px 14px; box-shadow: var(--shadow-sm); margin-bottom: 4px; overflow-x: auto; }
 /* Calendar heatmap */
 .cal-heatmap-svg { display: block; width: 100%; }
 .cal-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
@@ -403,7 +403,7 @@ let currentWeekIndex = 0;
 
 function parseNum(str) {
   if (!str || str.trim() === '' || str === '—') return null;
-  const s = str.replace(/[~\s]/g, '');
+  const s = str.replace(/[\\~\s]/g, '');
   const r = s.match(/^([\d,\.]+)[–\-]([\d,\.]+)$/);
   if (r) {
     const a = parseFloat(r[1].replace(/,/g,''));
@@ -726,49 +726,64 @@ function renderCalHeatmap() {
     if (ds) dayLookup[ds] = d;
   });
 
-  // Start from 364 days ago, aligned to Monday
-  const startRaw = new Date(today); startRaw.setDate(today.getDate()-364);
-  const dow = (startRaw.getDay()+6)%7;
-  startRaw.setDate(startRaw.getDate()-dow);
+  // Fixed start: 3 March 2026 (first Monday), aligned to Monday
+  const fixedStart = new Date('2026-03-03T12:00:00');
+  const startDow = (fixedStart.getDay()+6)%7;
+  fixedStart.setDate(fixedStart.getDate()-startDow);
 
-  // Build weeks array
+  // Fixed end: 31 Dec of the current year (extended to following Sunday)
+  const yearEnd = new Date(`${today.getFullYear()}-12-31T12:00:00`);
+  const endDow = (yearEnd.getDay()+6)%7;
+  yearEnd.setDate(yearEnd.getDate()+(6-endDow)); // advance to Sunday
+
+  // Build weeks array — all weeks from start to year end
   const weeks = [];
-  const cur = new Date(startRaw);
-  while (cur <= today) {
+  const cur = new Date(fixedStart);
+  while (cur <= yearEnd) {
     const week = [];
     for (let i=0; i<7; i++) {
-      const ds = cur.toISOString().slice(0,10);
-      week.push(ds <= todayStr ? ds : null);
+      week.push(cur.toISOString().slice(0,10));
       cur.setDate(cur.getDate()+1);
     }
     weeks.push(week);
   }
 
   const nW = weeks.length;
-  const CELL=13, GAP=2, STEP=CELL+GAP;
-  const ML=32, MR=8, MT=22, MB=4;
+  const CELL=28, GAP=4, STEP=CELL+GAP;
+  const ML=38, MR=12, MT=52, MB=8;
   const svgW = ML + nW*STEP + MR;
-  const svgH = MT + 7*STEP + MB;
+  const svgH = MT + 7*STEP + MB + 28; // extra for legend
 
-  // Month label positions
+  // Month labels — show "Mar 2026" on first week of each month
   const monthsSeen = new Set();
   const monthLabels = [];
+  const monthDividers = [];
   weeks.forEach((wk,wi) => {
-    const first = wk.find(d=>d);
-    if (!first) return;
-    const d = new Date(first+'T12:00:00');
+    const d = new Date(wk[0]+'T12:00:00');
     const key = `${d.getFullYear()}-${d.getMonth()}`;
-    if (d.getDate()<=7 && !monthsSeen.has(key)) {
+    if (!monthsSeen.has(key)) {
       monthsSeen.add(key);
-      monthLabels.push({x: ML+wi*STEP, label: d.toLocaleDateString('en-GB',{month:'short'})});
+      monthLabels.push({ x: ML+wi*STEP, label: d.toLocaleDateString('en-GB',{month:'short',year:'numeric'}) });
+      if (wi > 0) monthDividers.push(ML + wi*STEP - GAP/2);
     }
   });
 
-  const dayLabels = ['M','','W','','F','',''];
+  // Week start day-of-month labels (row 2 of header — Monday date for each column)
+  const dayOfMonthLabels = weeks.map((wk,wi) => {
+    const d = new Date(wk[0]+'T12:00:00');
+    return `<text x="${ML+wi*STEP+CELL/2}" y="${MT-6}" font-size="8" fill="var(--muted)" font-family="DM Mono,monospace" text-anchor="middle">${d.getDate()}</text>`;
+  }).join('');
+
+  // Day-of-week labels — all 7
+  const DAY_LABELS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const dLabels = DAY_LABELS.map((l,i) =>
+    `<text x="${ML-5}" y="${MT+i*STEP+CELL*0.65}" font-size="9" fill="var(--muted)" font-family="Outfit,sans-serif" text-anchor="end">${l}</text>`
+  ).join('');
 
   function cellColor(ds) {
+    if (ds > todayStr) return null; // future — no color
     const di = dayLookup[ds];
-    if (!di) return null; // no data
+    if (!di) return null; // past but no data logged
     const cal  = parseNum(di.total_calories);
     const step = parseNum(di.steps);
     if (cal===null && step===null) return null;
@@ -780,42 +795,53 @@ function renderCalHeatmap() {
     return '#e05c5c';
   }
 
-  // Build SVG
+  // Build cells
   let cells = '';
   weeks.forEach((wk,wi) => {
     wk.forEach((ds,di) => {
-      if (!ds) return;
       const color = cellColor(ds);
-      const fill  = color || '#e8e4dd';
+      const isFuture = ds > todayStr;
+      // fill: coloured if data, light grey if past-no-data, lighter if future
+      const fill = color ? color : (isFuture ? '#f0ece6' : '#e8e4dd');
       const x = ML + wi*STEP, y = MT + di*STEP;
-      // clickable only if has data
+
       if (color) {
         const d = new Date(ds+'T12:00:00');
         const dayInfo = dayLookup[ds];
         const cal  = parseNum(dayInfo.total_calories);
         const step = parseNum(dayInfo.steps);
-        const calOk  = cal!==null  && cal  < GOALS.calories;
+        const calOk  = cal!==null && cal  < GOALS.calories;
         const stepOk = step!==null && step >= GOALS.steps;
         const label = [
           d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
           cal  !== null ? (calOk?'✓':'✗')+' '+fmt(cal)+' kcal' : '',
           step !== null ? (stepOk?'✓':'✗')+' '+fmt(step)+' steps' : ''
         ].filter(Boolean).join(' · ');
-        cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${fill}"
-          class="cal-cell clickable" data-ds="${ds}" data-label="${label}"
-          style="cursor:pointer" />`;
+        cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="3" fill="${fill}" class="cal-cell clickable" data-ds="${ds}" data-label="${label}" style="cursor:pointer"/>`;
+        // day number inside cell
+        cells += `<text x="${x+CELL/2}" y="${y+CELL*0.65}" font-size="8" fill="rgba(255,255,255,0.75)" font-family="DM Mono,monospace" text-anchor="middle" pointer-events="none">${new Date(ds+'T12:00:00').getDate()}</text>`;
       } else {
-        cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${fill}" />`;
+        cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="3" fill="${fill}"/>`;
+        // day number for past no-data cells (subtle)
+        if (!isFuture) {
+          cells += `<text x="${x+CELL/2}" y="${y+CELL*0.65}" font-size="8" fill="var(--border)" font-family="DM Mono,monospace" text-anchor="middle" pointer-events="none">${new Date(ds+'T12:00:00').getDate()}</text>`;
+        }
       }
     });
   });
 
-  const mLabels = monthLabels.map(m=>`<text x="${m.x}" y="${MT-8}" font-size="9" fill="var(--muted)" font-family="Outfit,sans-serif">${m.label}</text>`).join('');
-  const dLabels = dayLabels.map((l,i)=>l?`<text x="${ML-5}" y="${MT+i*STEP+CELL*0.75}" font-size="9" fill="var(--muted)" font-family="Outfit,sans-serif" text-anchor="end">${l}</text>`:'').join('');
+  // Month divider lines
+  const dividers = monthDividers.map(lx =>
+    `<line x1="${lx}" y1="${MT-16}" x2="${lx}" y2="${MT+7*STEP}" stroke="var(--border)" stroke-width="1"/>`
+  ).join('');
 
-  container.innerHTML = `<svg viewBox="0 0 ${svgW} ${svgH}" class="cal-heatmap-svg" style="height:${svgH}px">${mLabels}${dLabels}${cells}</svg>`;
+  const mLabels = monthLabels.map(m =>
+    `<text x="${m.x}" y="${MT-28}" font-size="9.5" fill="var(--text)" font-family="Outfit,sans-serif" font-weight="600">${m.label}</text>`
+  ).join('');
 
-  // Hover tooltips + click to navigate to daily view
+  container.innerHTML = `<svg viewBox="0 0 ${svgW} ${svgH}" class="cal-heatmap-svg" style="height:${svgH}px;min-height:${svgH}px">${mLabels}${dayOfMonthLabels}${dividers}${dLabels}${cells}</svg>`;
+
+  // Hover tooltips + click to navigate
   container.querySelectorAll('.cal-cell.clickable').forEach(cell => {
     cell.addEventListener('mouseenter', () => {
       document.getElementById('cal-tooltip-text').textContent = cell.dataset.label;
