@@ -21,16 +21,18 @@ jobs:
           const fs = require('fs');
 
           const TOKEN = process.env.NOTION_TOKEN;
-          const DB_ENTRIES = '12f7117ab09743b7a38ebdec15bd6080';
-          const DB_DAILY   = 'd114a85d19e94168911b3da1de68c305';
-          const DB_WEEKLY  = '761fdcaefd0b4c05b21a1295719c4195';
 
-          function notionQuery(dbId) {
+          // These are the DATA SOURCE IDs (collection IDs), not database IDs
+          const DS_ENTRIES = 'db8f1863-7825-456f-8463-931c3f76526f';
+          const DS_DAILY   = 'd7b49364-98a9-4095-aaf4-673edde2aa94';
+          const DS_WEEKLY  = '8a65a531-e288-426c-8130-6531692d9401';
+
+          function notionQuery(dataSourceId) {
             return new Promise((resolve) => {
               const body = JSON.stringify({ page_size: 100 });
               const req = https.request({
                 hostname: 'api.notion.com',
-                path: '/v1/databases/' + dbId + '/query',
+                path: '/v1/databases/' + dataSourceId + '/query',
                 method: 'POST',
                 headers: {
                   'Authorization': 'Bearer ' + TOKEN,
@@ -44,21 +46,16 @@ jobs:
                 res.on('end', () => {
                   try {
                     const parsed = JSON.parse(data);
-                    console.log('DB ' + dbId + ' status:', res.statusCode);
-                    if (!parsed.results) {
-                      console.log('DB ' + dbId + ' error:', JSON.stringify(parsed).slice(0, 400));
-                    } else {
-                      console.log('DB ' + dbId + ' rows:', parsed.results.length);
-                    }
+                    console.log('DS ' + dataSourceId + ' status:', res.statusCode, '| rows:', parsed.results ? parsed.results.length : 'ERROR: ' + JSON.stringify(parsed).slice(0, 200));
                     resolve(parsed);
                   } catch(e) {
-                    console.log('DB ' + dbId + ' parse error:', e.message);
+                    console.log('Parse error:', e.message);
                     resolve({ results: [] });
                   }
                 });
               });
               req.on('error', err => {
-                console.log('DB ' + dbId + ' request error:', err.message);
+                console.log('Request error:', err.message);
                 resolve({ results: [] });
               });
               req.write(body);
@@ -79,9 +76,9 @@ jobs:
 
           async function main() {
             const [re, rd, rw] = await Promise.all([
-              notionQuery(DB_ENTRIES),
-              notionQuery(DB_DAILY),
-              notionQuery(DB_WEEKLY)
+              notionQuery(DS_ENTRIES),
+              notionQuery(DS_DAILY),
+              notionQuery(DS_WEEKLY)
             ]);
 
             const entries = (re.results || []).map(p => ({
@@ -116,7 +113,7 @@ jobs:
               };
             });
 
-            console.log('Processed:', entries.length, 'entries,', Object.keys(daily).length, 'daily,', Object.keys(weekly).length, 'weekly');
+            console.log('Final: entries=' + entries.length + ' daily=' + Object.keys(daily).length + ' weekly=' + Object.keys(weekly).length);
 
             let html = fs.readFileSync('template.html', 'utf8');
             html = html.replace('__NOTION_DATA__', JSON.stringify({ entries, daily, weekly }));
