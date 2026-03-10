@@ -417,14 +417,30 @@ function getWeekKey(ds) {
   return `${yr}-W${String(wk).padStart(2,'0')}`;
 }
 
+function getWeekMonday(ds) {
+  const d = new Date(ds+'T12:00:00'), day = d.getDay();
+  const mon = new Date(d); mon.setDate(d.getDate() - ((day+6)%7));
+  return mon.toISOString().slice(0,10);
+}
+
 function getAllWeeks() {
   const s = new Set();
-  WEEKLY_SUMMARY.forEach(e => s.add(e.week));
-  if (!s.size) {
-    // derive from daily data
-    getAllDays().forEach(d => s.add(getWeekKey(d)));
-  }
+  getAllDays().forEach(d => s.add(getWeekMonday(d)));
   return [...s].sort().reverse();
+}
+
+function findWeeklySummary(weekMonday) {
+  if (!WEEKLY_SUMMARY.length) return {};
+  let ws = WEEKLY_SUMMARY.find(w => isoDate(w.week) === weekMonday);
+  if (ws) return ws;
+  const sun = new Date(weekMonday+'T12:00:00');
+  sun.setDate(sun.getDate() + 6);
+  const sunStr = sun.toISOString().slice(0,10);
+  ws = WEEKLY_SUMMARY.find(w => {
+    const d = isoDate(w.week);
+    return d && d >= weekMonday && d <= sunStr;
+  });
+  return ws || {};
 }
 
 function pmBox(icon, label, value, goal, pct, isMet, goalText) {
@@ -505,8 +521,8 @@ function renderDaily(dateStr) {
   document.getElementById('daily-content').innerHTML = `
     <div class="summary-card">
       <div class="primary-metrics">
-        ${pmBox('🔥','Calories',cal,GOALS.calories,cal?(cal/GOALS.calories)*100:0,calMet,'Under '+fmt(GOALS.calories)+' target')}
-        ${pmBox('🚶','Steps',step,GOALS.steps,step?(step/GOALS.steps)*100:0,stepMet,fmt(GOALS.steps)+'+ target')}
+        ${pmBox('🔥','Calories',cal,GOALS.calories,cal?(cal/GOALS.calories)*100:0,calMet,'Target: <'+fmt(GOALS.calories))}
+        ${pmBox('🚶','Steps',step,GOALS.steps,step?(step/GOALS.steps)*100:0,stepMet,'Target: >'+fmt(GOALS.steps))}
       </div>
       <div class="divider"></div>
       <div class="macros">
@@ -524,24 +540,60 @@ function renderDaily(dateStr) {
     <div class="timeline">${tlHTML}</div>`;
 }
 
-function renderWeekly(weekKey) {
-  const ws = WEEKLY_SUMMARY.find(w => w.week === weekKey) || {};
+function renderWeekly(weekMonday) {
+  const ws = findWeeklySummary(weekMonday);
+  const sun = new Date(weekMonday+'T12:00:00');
+  sun.setDate(sun.getDate() + 6);
+  const sunStr = sun.toISOString().slice(0,10);
   const allDays = [...new Set([
     ...FOOD_ENTRIES.map(e => isoDate(e.date)),
     ...DAILY_INFO.map(e => isoDate(e.date))
-  ])].filter(d => d && getWeekKey(d) === weekKey).sort();
+  ])].filter(d => d && d >= weekMonday && d <= sunStr).sort();
 
-  const first = allDays[0], last = allDays[allDays.length-1];
-  document.getElementById('weekly-date-label').textContent = first ? `Week of ${fmtDate(first)}` : weekKey;
-  document.getElementById('weekly-date-sub').textContent   = first && last ? `${fmtDateShort(first)} — ${fmtDateShort(last)}` : weekKey;
+  // Always show full Mon–Sun range in the header
+  const monDate = new Date(weekMonday+'T12:00:00');
+  document.getElementById('weekly-date-label').textContent =
+    monDate.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) +
+    ' – ' + sun.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('weekly-date-sub').textContent =
+    allDays.length < 7 ? `${allDays.length} of 7 days logged` : '7 days logged';
 
-  const avgCal  = parseNum(ws.avg_calories);
-  const avgStep = parseNum(ws.avg_steps);
-  const avgProt = parseNum(ws.avg_protein);
-  const avgCarb = parseNum(ws.avg_carbs);
-  const avgFat  = parseNum(ws.avg_fat);
+  // Determine if this is a complete week (all 7 days up to today have data)
+  const today = new Date().toISOString().slice(0,10);
+  const expectedDays = [];
+  for (let i=0; i<7; i++) {
+    const d = new Date(weekMonday+'T12:00:00'); d.setDate(d.getDate()+i);
+    const ds = d.toISOString().slice(0,10);
+    if (ds <= today) expectedDays.push(ds);
+  }
+  const isComplete = allDays.length >= expectedDays.length && expectedDays.length === 7;
+  const isPreliminary = !isComplete && allDays.length > 0;
+
+  // Use stored averages if week is complete, otherwise calculate live from daily data
+  let avgCal, avgStep, avgProt, avgCarb, avgFat;
+  if (isComplete && ws.avg_calories) {
+    avgCal  = parseNum(ws.avg_calories);
+    avgStep = parseNum(ws.avg_steps);
+    avgProt = parseNum(ws.avg_protein);
+    avgCarb = parseNum(ws.avg_carbs);
+    avgFat  = parseNum(ws.avg_fat);
+  } else {
+    // Calculate live averages from however many days we have
+    const daysWithData = allDays.map(ds => DAILY_INFO.find(d => isoDate(d.date) === ds) || {});
+    const calVals  = daysWithData.map(d => parseNum(d.total_calories)).filter(v => v !== null);
+    const stepVals = daysWithData.map(d => parseNum(d.steps)).filter(v => v !== null);
+    const protVals = daysWithData.map(d => parseNum(d.total_protein)).filter(v => v !== null);
+    const carbVals = daysWithData.map(d => parseNum(d.total_carbs)).filter(v => v !== null);
+    const fatVals  = daysWithData.map(d => parseNum(d.total_fat)).filter(v => v !== null);
+    const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+    avgCal  = avg(calVals);
+    avgStep = avg(stepVals);
+    avgProt = avg(protVals);
+    avgCarb = avg(carbVals);
+    avgFat  = avg(fatVals);
+  }
+
   const weight  = ws.weight || null;
-
   const calMet  = avgCal  !== null && avgCal  < GOALS.calories;
   const stepMet = avgStep !== null && avgStep >= GOALS.steps;
 
@@ -589,21 +641,29 @@ function renderWeekly(weekKey) {
     </div>`;
   }).join('') || '<p style="color:var(--muted);font-size:13px;padding:12px 0;">No data logged for this week.</p>';
 
+  const avgLabel = isPreliminary
+    ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.8px;color:var(--muted);text-transform:uppercase">Averages so far</span>
+        <span style="font-size:10px;font-weight:600;color:#92400e;background:#fef3c7;border:1px solid #fde68a;padding:2px 8px;border-radius:10px;letter-spacing:0.5px">PRELIMINARY · ${allDays.length} of ${expectedDays.length} days</span>
+      </div>`
+    : '';
+
   document.getElementById('weekly-content').innerHTML = `
     <div class="summary-card">
+      ${avgLabel}
       <div class="primary-metrics">
-        ${pmBox('🔥','Avg Calories / day',avgCal,GOALS.calories,avgCal?(avgCal/GOALS.calories)*100:0,calMet,'Under '+fmt(GOALS.calories)+' target')}
-        ${pmBox('🚶','Avg Steps / day',avgStep,GOALS.steps,avgStep?(avgStep/GOALS.steps)*100:0,stepMet,fmt(GOALS.steps)+'+ target')}
+        ${pmBox('🔥','Avg Calories / day',avgCal !== null ? Math.round(avgCal) : null,GOALS.calories,avgCal?(avgCal/GOALS.calories)*100:0,calMet,'Target: <'+fmt(GOALS.calories))}
+        ${pmBox('🚶','Avg Steps / day',avgStep !== null ? Math.round(avgStep) : null,GOALS.steps,avgStep?(avgStep/GOALS.steps)*100:0,stepMet,'Target: >'+fmt(GOALS.steps))}
       </div>
       <div class="divider"></div>
       <div class="macros">
-        <div class="macro"><div class="macro-bar p"></div><div class="macro-inner"><div class="macro-lbl">Avg Protein</div></div><div class="macro-val p">${avgProt!==null?fmt(avgProt)+'g':'—'}</div></div>
-        <div class="macro"><div class="macro-bar c"></div><div class="macro-inner"><div class="macro-lbl">Avg Carbs</div></div><div class="macro-val c">${avgCarb!==null?fmt(avgCarb)+'g':'—'}</div></div>
-        <div class="macro"><div class="macro-bar f"></div><div class="macro-inner"><div class="macro-lbl">Avg Fat</div></div><div class="macro-val f">${avgFat!==null?fmt(avgFat)+'g':'—'}</div></div>
+        <div class="macro"><div class="macro-bar p"></div><div class="macro-inner"><div class="macro-lbl">Avg Protein</div></div><div class="macro-val p">${avgProt!==null?Math.round(avgProt)+'g':'—'}</div></div>
+        <div class="macro"><div class="macro-bar c"></div><div class="macro-inner"><div class="macro-lbl">Avg Carbs</div></div><div class="macro-val c">${avgCarb!==null?Math.round(avgCarb)+'g':'—'}</div></div>
+        <div class="macro"><div class="macro-bar f"></div><div class="macro-inner"><div class="macro-lbl">Avg Fat</div></div><div class="macro-val f">${avgFat!==null?Math.round(avgFat)+'g':'—'}</div></div>
       </div>
       ${weight?`<div class="divider"></div><div style="font-size:12px;color:var(--muted)">⚖️ Weight this week: <strong style="color:var(--text)">${weight} kg</strong></div>`:''}
     </div>
-    <div class="section-lbl">Daily Breakdown — ${allDays.length} days</div>
+    <div class="section-lbl">Daily Breakdown — ${allDays.length} ${allDays.length===1?'day':'days'}</div>
     <div class="week-timeline">${dayRows}</div>`;
 }
 
