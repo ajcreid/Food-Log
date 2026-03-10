@@ -19,6 +19,13 @@
   .tab.on{background:white;color:#0f766e}
   .tab.off{background:rgba(255,255,255,0.18);color:white}
   #content{max-width:680px;margin:0 auto;padding:14px 14px 80px}
+
+  /* Loading */
+  .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:16px;color:#64748b}
+  .spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#0f766e;border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .error-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:12px;padding:16px;color:#dc2626;font-size:14px;margin:20px 0}
+
   .nav-bar{display:flex;align-items:center;gap:10;margin-bottom:14px}
   .arrow{width:40px;height:40px;border-radius:50%;border:1px solid #cbd5e1;background:white;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .arrow:disabled{opacity:0.25;cursor:default}
@@ -48,12 +55,14 @@
   .entry-macros{display:flex;flex-wrap:wrap;gap:5px}
   .macro-pill{font-size:11px;background:#f1f5f9;color:#64748b;padding:2px 7px;border-radius:5px}
   .empty{text-align:center;color:#94a3b8;padding:32px 0;font-style:italic}
+
+  /* Week cards */
   .week-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:12px;cursor:pointer}
   .week-primary{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
   .week-date{font-size:14px;font-weight:700;color:#0f766e;margin-bottom:4px}
-  .week-cals{font-size:30px;font-weight:800;color:#0f766e;line-height:1}
+  .week-cals{font-size:28px;font-weight:800;color:#0f766e;line-height:1}
   .week-cals-label{font-size:11px;color:#94a3b8;margin-top:2px}
-  .week-steps{font-size:24px;font-weight:800;color:#1e293b;text-align:right;line-height:1}
+  .week-steps{font-size:22px;font-weight:800;color:#1e293b;text-align:right;line-height:1}
   .week-steps-label{font-size:11px;color:#94a3b8;text-align:right;margin-top:2px}
   .week-macros-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
   .macro-box{background:#f8fafc;border-radius:8px;padding:7px 10px;text-align:center}
@@ -66,31 +75,27 @@
   .week-meds{color:#7c3aed}
   .week-weight-badge{display:inline-flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:4px 12px;font-size:14px;font-weight:700;color:#166534;margin-bottom:10px}
 
-  /* Summary / Charts */
-  .chart-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:16px;position:relative}
-  .chart-card.primary{border:2px solid #0f766e;box-shadow:0 4px 16px rgba(15,118,110,0.1)}
+  /* Summary charts */
+  .chart-card{background:white;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:16px}
+  .chart-card.primary{border:2px solid #0f766e;box-shadow:0 4px 20px rgba(15,118,110,0.12)}
   .chart-title{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:2px}
   .chart-subtitle{font-size:12px;color:#94a3b8;margin-bottom:14px}
-  .chart-wrap{position:relative;width:100%}
-  svg.chart{width:100%;overflow:visible}
-
-  /* Tooltip */
-  .chart-tooltip{position:absolute;background:#1e293b;color:white;border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;z-index:10;transform:translate(-50%,-100%);margin-top:-8px}
-  .chart-tooltip.show{opacity:1}
-  .tooltip-label{font-weight:700;margin-bottom:3px;font-size:11px;opacity:0.7}
-  .tooltip-line{display:flex;align-items:center;gap:6px;margin-top:2px}
-  .tooltip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-
-  /* Legend */
+  .chart-wrap{position:relative;width:100%;user-select:none}
+  svg.chart{width:100%;display:block;overflow:visible;cursor:crosshair}
   .chart-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
   .legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:#64748b}
   .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-
-  /* Summary stats row */
   .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
   .stat-box{background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px;text-align:center}
   .stat-val{font-size:18px;font-weight:800;color:#0f766e}
   .stat-lbl{font-size:10px;color:#94a3b8;margin-top:2px}
+
+  #chart-tt{position:fixed;background:#1e293b;color:white;border-radius:10px;padding:10px 14px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:1000;box-shadow:0 4px 16px rgba(0,0,0,0.3)}
+  #chart-tt.show{opacity:1}
+  .tt-label{font-size:11px;opacity:0.65;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px}
+  .tt-row{display:flex;align-items:center;gap:7px;margin-top:3px}
+  .tt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .tt-val{font-weight:700}
 
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;z-index:200;pointer-events:none}
   #toast.show{opacity:1}
@@ -98,98 +103,25 @@
 </head>
 <body>
 <div id="header">
-  <div><h1>Anna's Food Log</h1><p>Nutrition · Symptoms · Activity</p></div>
+  <div><h1>Anna's Food Log</h1><p id="last-updated">Loading...</p></div>
   <div class="tab-row">
     <button class="tab on"  id="tab-log"     onclick="setTab('log')">Daily</button>
     <button class="tab off" id="tab-week"    onclick="setTab('week')">Week</button>
     <button class="tab off" id="tab-summary" onclick="setTab('summary')">Summary</button>
   </div>
 </div>
-<div id="content"></div>
+<div id="content"><div class="loading"><div class="spinner"></div><div>Loading your food log...</div></div></div>
+<div id="chart-tt"></div>
 <div id="toast"></div>
+
 <script>
-// ── Seed Data ──────────────────────────────────────────────────────────────
-const SEED_ENTRIES=[
-  {id:"s1",date:"2026-03-03",time:"09:00",type:"Drink",description:"Okra water, 3 glasses",calories:"0–15",protein:"0",carbs:"0–3",fat:"0"},
-  {id:"s2",date:"2026-03-03",time:"10:00",type:"Drink",description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s3",date:"2026-03-03",time:"11:30",type:"Breakfast",description:"Omelette: 2 eggs, 1 egg white, tomato, feta, olive oil spray",calories:"~260",protein:"~21",carbs:"~6",fat:"~19"},
-  {id:"s4",date:"2026-03-03",time:"11:30",type:"Drink",description:"Nespresso coffee, milk, ½ tsp xylitol",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s5",date:"2026-03-03",time:"11:40",type:"Drink",description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s6",date:"2026-03-03",time:"13:00",type:"Drink",description:"Rooibos tea",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s7",date:"2026-03-03",time:"14:00",type:"Snack",description:"Yoghurt (3 tbsp), honey, blueberries, small cheddar piece",calories:"~250",protein:"~9",carbs:"~28–32",fat:"~14"},
-  {id:"s8",date:"2026-03-03",time:"15:30",type:"Drink",description:"Nespresso coffee, milk, ½ tsp xylitol",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s9",date:"2026-03-03",time:"16:00",type:"Drink",description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s10",date:"2026-03-03",time:"18:00",type:"Drink",description:"Water (~250 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s11",date:"2026-03-03",time:"19:00",type:"Dinner",description:"GF spaghetti (maise & rice), meatballs, Grana Padano, side salad",calories:"~850–930",protein:"~42–50",carbs:"~105–125",fat:"~30–36"},
-  {id:"s12",date:"2026-03-04",time:"09:00",type:"Drink",description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
-  {id:"s13",date:"2026-03-04",time:"10:45",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s14",date:"2026-03-04",time:"11:30",type:"Drink",description:"Coffee milk + xylitol",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s15",date:"2026-03-04",time:"12:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s16",date:"2026-03-04",time:"12:30",type:"Lunch",description:"Omelette, spinach, tomatoes, cottage cheese",calories:"~260",protein:"~23",carbs:"~5",fat:"~18"},
-  {id:"s17",date:"2026-03-04",time:"14:00",type:"Snack",description:"4 Brazil nuts",calories:"~75",protein:"~2",carbs:"~2",fat:"~8"},
-  {id:"s18",date:"2026-03-04",time:"14:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s19",date:"2026-03-04",time:"17:00",type:"Drink",description:"Water (~750 ml gym)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s20",date:"2026-03-04",time:"18:00",type:"Snack",description:"Wafer thin ham (5 slices)",calories:"~65",protein:"~11",carbs:"0",fat:"~2"},
-  {id:"s21",date:"2026-03-04",time:"19:00",type:"Dinner",description:"Chicken thighs, salad, mozzarella, pesto, avo",calories:"~720–820",protein:"~55–65",carbs:"~8–12",fat:"~50–58"},
-  {id:"s22",date:"2026-03-04",time:"21:00",type:"Drink",description:"Ginger tea",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s23",date:"2026-03-05",time:"09:00",type:"Drink",description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
-  {id:"s24",date:"2026-03-05",time:"09:45",type:"Drink",description:"Chai latte",calories:"~130",protein:"~3",carbs:"~20",fat:"~3"},
-  {id:"s25",date:"2026-03-05",time:"11:00",type:"Breakfast",description:"Omelette, cottage cheese, ham, ketchup",calories:"~270",protein:"~28",carbs:"~4",fat:"~16"},
-  {id:"s26",date:"2026-03-05",time:"11:00",type:"Drink",description:"Nespresso coffee",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s27",date:"2026-03-05",time:"13:00",type:"Drink",description:"Water (~500 ml)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s28",date:"2026-03-05",time:"14:00",type:"Snack",description:"Steers chips",calories:"~380",protein:"~5",carbs:"~50",fat:"~20"},
-  {id:"s29",date:"2026-03-05",time:"17:00",type:"Snack",description:"BBQ mini chicken fillet",calories:"~70",protein:"~11",carbs:"~2",fat:"~1"},
-  {id:"s30",date:"2026-03-05",time:"19:00",type:"Dinner",description:"Lamb chops, broccoli, cheese sauce, salad",calories:"~550",protein:"~35",carbs:"~11",fat:"~40"},
-  {id:"s31",date:"2026-03-06",time:"09:00",type:"Drink",description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
-  {id:"s32",date:"2026-03-06",time:"10:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s33",date:"2026-03-06",time:"11:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s34",date:"2026-03-06",time:"12:00",type:"Lunch",description:"Small spaghetti & meatballs",calories:"~380",protein:"~32",carbs:"~22",fat:"~20"},
-  {id:"s35",date:"2026-03-06",time:"12:00",type:"Drink",description:"Espresso milk + xylitol",calories:"~15",protein:"~1",carbs:"~1",fat:"0"},
-  {id:"s36",date:"2026-03-06",time:"14:00",type:"Snack",description:"Mini chicken fillet",calories:"~50",protein:"~8",carbs:"~1",fat:"~1"},
-  {id:"s37",date:"2026-03-06",time:"14:00",type:"Drink",description:"Espresso",calories:"~2",protein:"0",carbs:"0",fat:"0"},
-  {id:"s38",date:"2026-03-06",time:"14:00",type:"Drink",description:"Water",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s39",date:"2026-03-06",time:"19:00",type:"Dinner",description:"Bao buns, ½ mozzarella, creamy chicken dish",calories:"~950–1,100",protein:"~60",carbs:"~70",fat:"~50"},
-  {id:"s40",date:"2026-03-06",time:"19:00",type:"Drink",description:"3 white wine spritzers",calories:"~240",protein:"0",carbs:"~8",fat:"0"},
-  {id:"s41",date:"2026-03-07",time:"10:00",type:"Drink",description:"Nespresso coffee",calories:"~25",protein:"~1",carbs:"~2",fat:"~1"},
-  {id:"s42",date:"2026-03-07",time:"11:30",type:"Drink",description:"Ginger tea",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s43",date:"2026-03-07",time:"13:00",type:"Drink",description:"Water (~1 L)",calories:"0",protein:"0",carbs:"0",fat:"0"},
-  {id:"s44",date:"2026-03-07",time:"14:30",type:"Lunch",description:"Chicken wrap",calories:"~350",protein:"~24",carbs:"~26",fat:"~16"},
-  {id:"s45",date:"2026-03-07",time:"16:00",type:"Drink",description:"Chai latte",calories:"~190",protein:"~4",carbs:"~29",fat:"~5"},
-  {id:"s46",date:"2026-03-07",time:"19:00",type:"Dinner",description:"Asian beef bowl",calories:"~550",protein:"~34",carbs:"~65",fat:"~16"},
-  {id:"s47",date:"2026-03-08",time:"09:00",type:"Drink",description:"Okra water (~1 L)",calories:"0–20",protein:"0",carbs:"0–4",fat:"0"},
-  {id:"s48",date:"2026-03-08",time:"09:30",type:"Breakfast",description:"Chicken wrap",calories:"~350",protein:"~24",carbs:"~26",fat:"~16"},
-  {id:"s49",date:"2026-03-08",time:"12:00",type:"Snack",description:"4 Woolworths mini chicken fillets",calories:"~200",protein:"~32",carbs:"~4",fat:"~4"},
-  {id:"s50",date:"2026-03-08",time:"12:00",type:"Drink",description:"Chai latte",calories:"~190",protein:"~4",carbs:"~29",fat:"~5"},
-  {id:"s51",date:"2026-03-08",time:"14:30",type:"Lunch",description:"Asian beef bowl",calories:"~550",protein:"~34",carbs:"~65",fat:"~16"},
-  {id:"s52",date:"2026-03-08",time:"18:00",type:"Snack",description:"9 Woolworths chicken nuggets",calories:"~420",protein:"~24",carbs:"~26",fat:"~26"},
-  {id:"s53",date:"2026-03-09",time:"10:30",type:"Drink",description:"Nespresso, xylitol, sugar-free almond milk",calories:"~10",protein:"0",carbs:"~1",fat:"0"},
-  {id:"s54",date:"2026-03-09",time:"12:00",type:"Drink",description:"Nespresso, xylitol, sugar-free almond milk",calories:"~10",protein:"0",carbs:"~1",fat:"0"},
-  {id:"s55",date:"2026-03-09",time:"12:00",type:"Lunch",description:"Omelette: 2 eggs, 1 egg white, ham (3 slices), cherry tomatoes, cottage cheese",calories:"~300",protein:"~32",carbs:"~4",fat:"~18"},
-  {id:"s56",date:"2026-03-09",time:"13:30",type:"Snack",description:"3.5 Woolworths mini chicken fillets",calories:"~175",protein:"~28",carbs:"~3",fat:"~4"},
-  {id:"s57",date:"2026-03-09",time:"14:10",type:"Snack",description:"4 small Brazil nuts",calories:"~75",protein:"~2",carbs:"~2",fat:"~8"},
-];
-const SEED_DAILY={
-  "2026-03-03":{steps:"6000",exercise:"",symptoms:"Cold morning, headache 12:30, brain fog 14:30",meds:"Panado 19:30",cal:"~1,410–1,505",pro:"~74–82",carb:"~143–170",fat:"~65–71"},
-  "2026-03-04":{steps:"7315",exercise:"Treadmill incline walk, strength training",symptoms:"",meds:"",cal:"~1,145–1,265",pro:"~92–102",carb:"~17–25",fat:"~79–87"},
-  "2026-03-05":{steps:"4536",exercise:"",symptoms:"",meds:"",cal:"~1,425–1,445",pro:"~83",carb:"~89",fat:"~81"},
-  "2026-03-06":{steps:"6864",exercise:"",symptoms:"Rash left breast, headache waking",meds:"",cal:"~1,637–1,787",pro:"~101",carb:"~102",fat:"~71"},
-  "2026-03-07":{steps:"13618",exercise:"Ran 5 km",symptoms:"Petechiae on stomach",meds:"",cal:"~1,115",pro:"~63",carb:"~122",fat:"~38"},
-  "2026-03-08":{steps:"11197",exercise:"Zone 2 walk 5k",symptoms:"",meds:"",cal:"~1,710–1,730",pro:"~118",carb:"~150",fat:"~67"},
-  "2026-03-09":{steps:"",exercise:"",symptoms:"",meds:"",cal:"~570",pro:"~62",carb:"~11",fat:"~30"},
-};
-// Weekly summaries keyed by week-start (Monday) YYYY-MM-DD
-// avgCal, avgSteps, weight are numbers for graphing; display strings kept separately
-const SEED_WEEKLY={
-  "2026-03-03":{
-    weight:null, weightDisplay:"",
-    avgCal:1371, avgCalDisplay:"~1,371",
-    avgSteps:7218, avgStepsDisplay:"~7,218",
-    avgPro:85,  avgProDisplay:"~85",
-    avgCarb:94, avgCarbDisplay:"~94",
-    avgFat:65,  avgFatDisplay:"~65",
-    exerciseDays:2, notes:""
-  },
-};
+// ── Config ─────────────────────────────────────────────────────────────────
+const TOKEN = "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";
+const DB_ENTRIES  = "12f7117a-b097-43b7-a38e-bdec15bd6080";
+const DB_DAILY    = "d114a85d-19e9-4168-911b-3da1de68c305";
+const DB_WEEKLY   = "761fdcae-fd0b-4c05-b21a-1295719c4195";
+
+const ALL_WEEKS = ["2026-03-03","2026-03-10","2026-03-17","2026-03-24","2026-03-31","2026-04-07","2026-04-14","2026-04-21","2026-04-28","2026-05-05","2026-05-12","2026-05-19","2026-05-26","2026-06-02","2026-06-09","2026-06-16","2026-06-23","2026-06-30","2026-07-07","2026-07-14","2026-07-21","2026-07-28","2026-08-04","2026-08-11","2026-08-18","2026-08-25","2026-09-01","2026-09-08","2026-09-15","2026-09-22","2026-09-29","2026-10-06","2026-10-13","2026-10-20","2026-10-27","2026-11-03","2026-11-10","2026-11-17","2026-11-24","2026-12-01","2026-12-08","2026-12-15","2026-12-22","2026-12-29"];
 
 const TYPE_META={
   Breakfast:{bg:"#fef9c3",border:"#ca8a04",text:"#854d0e"},
@@ -201,35 +133,148 @@ const TYPE_META={
 };
 const TYPES=["Breakfast","Lunch","Dinner","Snack","Drink","Supplement"];
 
-let entries=[],daily={},weekly={},dateIdx=0,weekIdx=0,currentTab="log";
+// ── State ──────────────────────────────────────────────────────────────────
+let entries=[], daily={}, weekly={}, dateIdx=0, weekIdx=0, currentTab="log";
 
-function load(){
-  try{
-    const e=localStorage.getItem("fl_e4"),d=localStorage.getItem("fl_d4"),w=localStorage.getItem("fl_w4");
-    entries=e?JSON.parse(e):JSON.parse(JSON.stringify(SEED_ENTRIES));
-    daily=d?JSON.parse(d):JSON.parse(JSON.stringify(SEED_DAILY));
-    weekly=w?JSON.parse(w):JSON.parse(JSON.stringify(SEED_WEEKLY));
-  }catch{
-    entries=JSON.parse(JSON.stringify(SEED_ENTRIES));
-    daily=JSON.parse(JSON.stringify(SEED_DAILY));
-    weekly=JSON.parse(JSON.stringify(SEED_WEEKLY));
+// ── Notion API ─────────────────────────────────────────────────────────────
+async function notionQuery(dbId, filter=null, sorts=null){
+  const body = {};
+  if(filter) body.filter = filter;
+  if(sorts)  body.sorts  = sorts;
+  body.page_size = 100;
+
+  let results = [];
+  let cursor  = null;
+  do {
+    if(cursor) body.start_cursor = cursor;
+    const res = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
+      method:"POST",
+      headers:{
+        "Authorization":"Bearer "+TOKEN,
+        "Notion-Version":"2022-06-28",
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify(body)
+    });
+    if(!res.ok) throw new Error(`Notion API error ${res.status}`);
+    const data = await res.json();
+    results = results.concat(data.results);
+    cursor = data.has_more ? data.next_cursor : null;
+  } while(cursor);
+  return results;
+}
+
+function getProp(page, name){
+  const p = page.properties[name];
+  if(!p) return "";
+  if(p.type==="title")       return p.title.map(t=>t.plain_text).join("");
+  if(p.type==="rich_text")   return p.rich_text.map(t=>t.plain_text).join("");
+  if(p.type==="select")      return p.select?.name||"";
+  if(p.type==="date")        return p.date?.start||"";
+  if(p.type==="number")      return p.number!=null?p.number:"";
+  return "";
+}
+
+// ── Load Data ──────────────────────────────────────────────────────────────
+async function loadAll(){
+  try {
+    document.getElementById("content").innerHTML = '<div class="loading"><div class="spinner"></div><div>Loading your food log...</div></div>';
+
+    // Fetch all three databases in parallel
+    const [rawEntries, rawDaily, rawWeekly] = await Promise.all([
+      notionQuery(DB_ENTRIES, null, [{property:"Date",direction:"ascending"},{property:"Time",direction:"ascending"}]),
+      notionQuery(DB_DAILY),
+      notionQuery(DB_WEEKLY),
+    ]);
+
+    // Parse entries
+    entries = rawEntries.map(p=>({
+      id:    p.id,
+      date:  getProp(p,"Date"),
+      time:  getProp(p,"Time"),
+      type:  getProp(p,"Type"),
+      description: getProp(p,"Description"),
+      calories: getProp(p,"Calories"),
+      protein:  getProp(p,"Protein"),
+      carbs:    getProp(p,"Carbs"),
+      fat:      getProp(p,"Fat"),
+    })).filter(e=>e.date);
+
+    // Parse daily info — keyed by date
+    daily = {};
+    rawDaily.forEach(p=>{
+      const date = getProp(p,"Date");
+      if(!date) return;
+      daily[date] = {
+        steps:    getProp(p,"Steps"),
+        exercise: getProp(p,"Exercise"),
+        symptoms: getProp(p,"Symptoms"),
+        meds:     getProp(p,"Medication"),
+        cal:      getProp(p,"Total Calories"),
+        pro:      getProp(p,"Total Protein"),
+        carb:     getProp(p,"Total Carbs"),
+        fat:      getProp(p,"Total Fat"),
+      };
+    });
+
+    // Parse weekly — keyed by week start date
+    weekly = {};
+    ALL_WEEKS.forEach(w => weekly[w] = {weight:null,weightDisplay:"",avgCal:null,avgCalDisplay:"",avgSteps:null,avgStepsDisplay:"",avgPro:null,avgProDisplay:"",avgCarb:null,avgCarbDisplay:"",avgFat:null,avgFatDisplay:"",exerciseDays:null,notes:""});
+    rawWeekly.forEach(p=>{
+      const week = getProp(p,"Week");
+      if(!week||!weekly[week]) return;
+      const wt = getProp(p,"Weight (kg)");
+      weekly[week] = {
+        weightDisplay: wt,
+        weight: wt ? parseFloat(wt.replace(/[^0-9.]/g,""))||null : null,
+        avgCalDisplay: getProp(p,"Avg Calories"),
+        avgCal: parseFloat((getProp(p,"Avg Calories")||"").replace(/[^0-9.]/g,""))||null,
+        avgStepsDisplay: getProp(p,"Avg Steps"),
+        avgSteps: parseFloat((getProp(p,"Avg Steps")||"").replace(/[^0-9.]/g,""))||null,
+        avgProDisplay: getProp(p,"Avg Protein"),
+        avgPro: parseFloat((getProp(p,"Avg Protein")||"").replace(/[^0-9.]/g,""))||null,
+        avgCarbDisplay: getProp(p,"Avg Carbs"),
+        avgCarb: parseFloat((getProp(p,"Avg Carbs")||"").replace(/[^0-9.]/g,""))||null,
+        avgFatDisplay: getProp(p,"Avg Fat"),
+        avgFat: parseFloat((getProp(p,"Avg Fat")||"").replace(/[^0-9.]/g,""))||null,
+        exerciseDays: getProp(p,"Exercise Days")||null,
+        notes: getProp(p,"Notes"),
+      };
+    });
+
+    // Set indices to most recent data
+    const dates = allDates();
+    dateIdx = dates.length > 0 ? dates.length - 1 : 0;
+    weekIdx = 0; // start at first week with data
+
+    // Update header timestamp
+    const now = new Date();
+    document.getElementById("last-updated").textContent =
+      "Updated " + now.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+
+    render();
+  } catch(err) {
+    document.getElementById("content").innerHTML =
+      `<div class="error-box">⚠️ Could not load data from Notion.<br><small>${err.message}</small></div>
+       <button onclick="loadAll()" style="margin:0 auto;display:block;padding:10px 24px;background:#0f766e;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600">Retry</button>`;
   }
 }
-function allDates(){return[...new Set(entries.map(e=>e.date))].sort();}
-function allWeeks(){return Object.keys(weekly).sort();}
-function selDate(){const d=allDates();return d[dateIdx]||d[0];}
-function selWeek(){const w=allWeeks();return w[weekIdx]||w[0];}
-function getInfo(){return daily[selDate()]||{steps:"",exercise:"",symptoms:"",meds:"",cal:"",pro:"",carb:"",fat:""};}
-function fmtDate(d){return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});}
-function fmtShort(d){return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function allDates(){ return [...new Set(entries.map(e=>e.date))].sort(); }
+function selDate(){ const d=allDates(); return d[dateIdx]||d[0]; }
+function selWeek(){ return ALL_WEEKS[weekIdx]; }
+function getInfo(){ return daily[selDate()]||{steps:"",exercise:"",symptoms:"",meds:"",cal:"",pro:"",carb:"",fat:""}; }
+function fmtDate(d){ return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"}); }
+function fmtShort(d){ return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}); }
 function fmtWeek(d){
-  const s=new Date(d+"T12:00:00"),e=new Date(s);e.setDate(e.getDate()+6);
+  const s=new Date(d+"T12:00:00"),e=new Date(s); e.setDate(e.getDate()+6);
   return s.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" – "+e.toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 }
-function fmtWeekShort(d){return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});}
-function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800);}
-function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function fmtWeekShort(d){ return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}); }
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
+// ── Tabs ───────────────────────────────────────────────────────────────────
 function setTab(tab){
   currentTab=tab;
   ["log","week","summary"].forEach(t=>document.getElementById("tab-"+t).className="tab "+(t===tab?"on":"off"));
@@ -237,15 +282,14 @@ function setTab(tab){
 }
 function render(){
   const c=document.getElementById("content");
-  if(currentTab==="log")c.innerHTML=renderLog();
-  else if(currentTab==="week")c.innerHTML=renderWeek();
-  else c.innerHTML=renderSummary();
-  if(currentTab==="summary") drawCharts();
+  if(currentTab==="log")          c.innerHTML=renderLog();
+  else if(currentTab==="week")    c.innerHTML=renderWeek();
+  else { c.innerHTML=renderSummary(); requestAnimationFrame(()=>drawCharts()); }
 }
 
 // ── Daily Log ──────────────────────────────────────────────────────────────
 function renderLog(){
-  const dates=allDates(),date=selDate(),info=getInfo();
+  const dates=allDates(), date=selDate(), info=getInfo();
   const dayEntries=entries.filter(e=>e.date===date).sort((a,b)=>a.time.localeCompare(b.time));
   const groups=TYPES.filter(t=>dayEntries.some(e=>e.type===t)).map(type=>{
     const m=TYPE_META[type];
@@ -286,12 +330,11 @@ function renderLog(){
 
 // ── Week View ──────────────────────────────────────────────────────────────
 function renderWeek(){
-  const weeks=allWeeks();
-  if(!weeks.length)return'<div class="empty">No weekly data yet.</div>';
-  const wk=selWeek(),wi=weekly[wk]||{};
-  const wStart=new Date(wk+"T12:00:00"),wEnd=new Date(wStart);wEnd.setDate(wEnd.getDate()+6);
-  const wkDates=allDates().filter(d=>{const dt=new Date(d+"T12:00:00");return dt>=wStart&&dt<=wEnd;});
-  const dayCards=wkDates.map(d=>{
+  const wk=selWeek(), wi=weekly[wk]||{};
+  const wStart=new Date(wk+"T12:00:00"), wEnd=new Date(wStart); wEnd.setDate(wEnd.getDate()+6);
+  const wkDates=allDates().filter(d=>{const dt=new Date(d+"T12:00:00");return dt>=wStart&&dt<=wEnd;}).reverse();
+
+  const dayCards=wkDates.length>0 ? wkDates.map(d=>{
     const di=daily[d]||{};
     return`<div class="week-card" onclick="goToDay('${d}')">
       <div class="week-primary">
@@ -311,64 +354,48 @@ function renderWeek(){
         ${di.meds?`<div class="week-detail week-meds">💊 ${esc(di.meds)}</div>`:""}
       `:""}
     </div>`;
-  }).join("");
+  }).join("") : `<div class="empty">No entries logged for this week yet.</div>`;
+
   return`
     <div class="nav-bar">
       <button class="arrow" onclick="prevWeek()" ${weekIdx===0?"disabled":""}>‹</button>
-      <div class="nav-center"><div class="nav-main">${fmtWeek(wk)}</div><div class="nav-sub">Week ${weekIdx+1} of ${weeks.length}</div></div>
-      <button class="arrow" onclick="nextWeek()" ${weekIdx>=weeks.length-1?"disabled":""}>›</button>
+      <div class="nav-center"><div class="nav-main">${fmtWeek(wk)}</div><div class="nav-sub">Week ${weekIdx+1} of ${ALL_WEEKS.length}</div></div>
+      <button class="arrow" onclick="nextWeek()" ${weekIdx>=ALL_WEEKS.length-1?"disabled":""}>›</button>
     </div>
-    ${wi.weight?`<div style="margin-bottom:10px"><span class="week-weight-badge">⚖️ ${esc(wi.weight)} kg this week</span></div>`:""}
-    ${dayCards||'<div class="empty">No daily entries found for this week.</div>'}`;
+    ${wi.weight?`<div style="margin-bottom:10px"><span class="week-weight-badge">⚖️ ${esc(wi.weightDisplay)} kg this week</span></div>`:""}
+    ${dayCards}`;
 }
 
 // ── Summary ────────────────────────────────────────────────────────────────
 function renderSummary(){
-  const weeks=allWeeks();
-  if(!weeks.length)return'<div class="empty">No weekly data yet.</div>';
-  const latest=weekly[weeks[weeks.length-1]]||{};
+  const populated=ALL_WEEKS.filter(w=>weekly[w]?.avgCal||weekly[w]?.weight);
+  const latest=weekly[populated[populated.length-1]]||{};
   return`
     <div style="font-size:17px;font-weight:700;color:#1e293b;margin-bottom:4px">Health Summary</div>
-    <div style="font-size:12px;color:#94a3b8;margin-bottom:16px">${weeks.length} week${weeks.length>1?"s":""} of data</div>
-
+    <div style="font-size:12px;color:#94a3b8;margin-bottom:16px">${populated.length} week${populated.length!==1?"s":""} of data · ${ALL_WEEKS.length} weeks tracked this year</div>
     <div class="stats-row">
-      <div class="stat-box"><div class="stat-val">${latest.avgCalDisplay||"—"}</div><div class="stat-lbl">Avg Calories</div></div>
-      <div class="stat-box"><div class="stat-val">${latest.avgStepsDisplay||"—"}</div><div class="stat-lbl">Avg Steps</div></div>
-      <div class="stat-box"><div class="stat-val">${latest.exerciseDays||"—"}</div><div class="stat-lbl">Exercise Days</div></div>
+      <div class="stat-box"><div class="stat-val">${latest.avgCalDisplay||"—"}</div><div class="stat-lbl">Latest Avg Cal</div></div>
+      <div class="stat-box"><div class="stat-val">${latest.avgStepsDisplay||"—"}</div><div class="stat-lbl">Latest Avg Steps</div></div>
+      <div class="stat-box"><div class="stat-val">${latest.exerciseDays!=null?latest.exerciseDays:"—"}</div><div class="stat-lbl">Exercise Days</div></div>
     </div>
-
-    <!-- Chart 1: Weight — primary, large -->
     <div class="chart-card primary">
       <div class="chart-title">⚖️ Weight</div>
-      <div class="chart-subtitle">Weekly weight in kg</div>
-      <div class="chart-wrap">
-        <svg class="chart" id="chart-weight" height="180"></svg>
-        <div class="chart-tooltip" id="tt-weight"></div>
-      </div>
+      <div class="chart-subtitle">Weekly weight in kg — tap a point to see the value</div>
+      <div class="chart-wrap" id="wrap-weight"><svg class="chart" id="svg-weight" height="200"></svg></div>
     </div>
-
-    <!-- Chart 2: Calories + Steps -->
     <div class="chart-card">
       <div class="chart-title">🔥 Calories &amp; 👟 Steps</div>
-      <div class="chart-subtitle">Weekly averages</div>
-      <div class="chart-wrap">
-        <svg class="chart" id="chart-calsteps" height="150"></svg>
-        <div class="chart-tooltip" id="tt-calsteps"></div>
-      </div>
+      <div class="chart-subtitle">Weekly averages — tap a point to see the value</div>
+      <div class="chart-wrap" id="wrap-calsteps"><svg class="chart" id="svg-calsteps" height="160"></svg></div>
       <div class="chart-legend">
         <div class="legend-item"><div class="legend-dot" style="background:#0f766e"></div>Avg Calories</div>
         <div class="legend-item"><div class="legend-dot" style="background:#0284c7"></div>Avg Steps ÷ 10</div>
       </div>
     </div>
-
-    <!-- Chart 3: Macros -->
     <div class="chart-card">
       <div class="chart-title">🥗 Macros</div>
-      <div class="chart-subtitle">Average weekly protein, carbs &amp; fat (g)</div>
-      <div class="chart-wrap">
-        <svg class="chart" id="chart-macros" height="150"></svg>
-        <div class="chart-tooltip" id="tt-macros"></div>
-      </div>
+      <div class="chart-subtitle">Average weekly protein, carbs &amp; fat (g) — tap a point to see the value</div>
+      <div class="chart-wrap" id="wrap-macros"><svg class="chart" id="svg-macros" height="160"></svg></div>
       <div class="chart-legend">
         <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Protein</div>
         <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Carbs</div>
@@ -377,151 +404,97 @@ function renderSummary(){
     </div>`;
 }
 
-// ── Chart Drawing ──────────────────────────────────────────────────────────
+// ── Charts ─────────────────────────────────────────────────────────────────
 function drawCharts(){
-  const weeks=allWeeks();
-  if(weeks.length<1)return;
-  const wData=weeks.map(w=>({...weekly[w],wk:w}));
-  const labels=weeks.map(w=>fmtWeekShort(w));
-
-  // Chart 1: Weight
-  const wtVals=wData.map(w=>w.weight||null);
-  drawLineChart("chart-weight","tt-weight",labels,[
-    {values:wtVals,color:"#0f766e",label:"Weight (kg)",strokeWidth:3,dotSize:6}
-  ],180,true);
-
-  // Chart 2: Calories + Steps/10
-  const calVals=wData.map(w=>w.avgCal||null);
-  const stepVals=wData.map(w=>w.avgSteps?w.avgSteps/10:null);
-  drawLineChart("chart-calsteps","tt-calsteps",labels,[
-    {values:calVals, color:"#0f766e",label:"Avg Calories",strokeWidth:2,dotSize:5,
-     tooltipFmt:(v)=>v?Math.round(v)+" kcal":null},
-    {values:stepVals,color:"#0284c7",label:"Avg Steps",strokeWidth:2,dotSize:5,
-     tooltipFmt:(v,i)=>wData[i]?.avgSteps?Math.round(wData[i].avgSteps).toLocaleString()+" steps":null},
-  ],150,false);
-
-  // Chart 3: Macros
-  const proVals=wData.map(w=>w.avgPro||null);
-  const carbVals=wData.map(w=>w.avgCarb||null);
-  const fatVals=wData.map(w=>w.avgFat||null);
-  drawLineChart("chart-macros","tt-macros",labels,[
-    {values:proVals, color:"#dc2626",label:"Protein",strokeWidth:2,dotSize:4,tooltipFmt:(v)=>v?v+"g":null},
-    {values:carbVals,color:"#d97706",label:"Carbs",  strokeWidth:2,dotSize:4,tooltipFmt:(v)=>v?v+"g":null},
-    {values:fatVals, color:"#7c3aed",label:"Fat",    strokeWidth:2,dotSize:4,tooltipFmt:(v)=>v?v+"g":null},
-  ],150,false);
+  const wData=ALL_WEEKS.map(w=>({...weekly[w],wk:w}));
+  const labels=ALL_WEEKS.map(w=>fmtWeekShort(w));
+  drawChart("svg-weight","wrap-weight",labels,200,[
+    {values:wData.map(w=>w.weight),color:"#0f766e",label:"Weight",sw:3,ds:7,fmt:(v)=>v!=null?v+" kg":null}
+  ]);
+  drawChart("svg-calsteps","wrap-calsteps",labels,160,[
+    {values:wData.map(w=>w.avgCal),color:"#0f766e",label:"Avg Calories",sw:2,ds:5,fmt:(v)=>v!=null?Math.round(v)+" kcal":null},
+    {values:wData.map((w,i)=>w.avgSteps!=null?w.avgSteps/10:null),color:"#0284c7",label:"Avg Steps",sw:2,ds:5,fmt:(v,i)=>wData[i]?.avgSteps!=null?Math.round(wData[i].avgSteps).toLocaleString()+" steps":null},
+  ]);
+  drawChart("svg-macros","wrap-macros",labels,160,[
+    {values:wData.map(w=>w.avgPro), color:"#dc2626",label:"Protein",sw:2,ds:4,fmt:(v)=>v!=null?v+"g protein":null},
+    {values:wData.map(w=>w.avgCarb),color:"#d97706",label:"Carbs",  sw:2,ds:4,fmt:(v)=>v!=null?v+"g carbs":null},
+    {values:wData.map(w=>w.avgFat), color:"#7c3aed",label:"Fat",    sw:2,ds:4,fmt:(v)=>v!=null?v+"g fat":null},
+  ]);
 }
 
-function drawLineChart(svgId,ttId,labels,series,height,isLarge){
-  const svg=document.getElementById(svgId);
-  if(!svg)return;
-  const W=svg.parentElement.clientWidth||320;
+function drawChart(svgId,wrapId,labels,height,series){
+  const svg=document.getElementById(svgId), wrap=document.getElementById(wrapId);
+  if(!svg||!wrap) return;
+  const W=wrap.clientWidth||320;
   svg.setAttribute("viewBox",`0 0 ${W} ${height}`);
-  const pad={l:36,r:16,t:16,b:36};
-  const iW=W-pad.l-pad.r, iH=height-pad.t-pad.b;
-  const n=labels.length;
-  if(n===0)return;
-
-  // Flatten all values to get min/max
-  const allVals=series.flatMap(s=>s.values).filter(v=>v!==null&&v!==undefined);
-  if(!allVals.length)return;
-  let minV=Math.min(...allVals), maxV=Math.max(...allVals);
-  const range=maxV-minV||1;
-  minV=minV-range*0.1; maxV=maxV+range*0.1;
-
-  function xPos(i){return pad.l+(n===1?iW/2:i*(iW/(n-1)));}
-  function yPos(v){return pad.t+iH-(((v-minV)/(maxV-minV))*iH);}
-
+  svg.setAttribute("width",W); svg.setAttribute("height",height);
+  const pad={l:40,r:12,t:16,b:32};
+  const iW=W-pad.l-pad.r, iH=height-pad.t-pad.b, n=labels.length;
+  const allVals=series.flatMap(s=>s.values).filter(v=>v!=null);
+  let minV=0,maxV=100;
+  if(allVals.length>0){ minV=Math.min(...allVals); maxV=Math.max(...allVals); const r=maxV-minV||10; minV-=r*0.12; maxV+=r*0.12; }
+  function xPos(i){ return pad.l+(n<=1?iW/2:i*(iW/(n-1))); }
+  function yPos(v){ return pad.t+iH-((v-minV)/(maxV-minV))*iH; }
   let html="";
-
-  // Grid lines
-  for(let i=0;i<=4;i++){
-    const y=pad.t+(iH/4)*i;
-    const val=maxV-((maxV-minV)/4)*i;
-    html+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>`;
-    html+=`<text x="${pad.l-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#94a3b8">${Math.round(val)}</text>`;
+  for(let g=0;g<=4;g++){
+    const frac=g/4, y=pad.t+iH*frac, val=maxV-(maxV-minV)*frac;
+    html+=`<line x1="${pad.l}" y1="${y.toFixed(1)}" x2="${W-pad.r}" y2="${y.toFixed(1)}" stroke="#f1f5f9" stroke-width="1"/>`;
+    html+=`<text x="${pad.l-5}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#94a3b8">${Math.round(val)}</text>`;
   }
-
-  // X labels
-  labels.forEach((l,i)=>{
-    html+=`<text x="${xPos(i)}" y="${height-6}" text-anchor="middle" font-size="9" fill="#94a3b8">${l}</text>`;
-  });
-
-  // Lines + dots per series
+  const step=Math.max(1,Math.round(n/6));
+  labels.forEach((l,i)=>{ if(i%step!==0&&i!==n-1) return; html+=`<text x="${xPos(i).toFixed(1)}" y="${height-6}" text-anchor="middle" font-size="9" fill="#94a3b8">${l}</text>`; });
+  const today=new Date();
+  const firstFutureIdx=ALL_WEEKS.findIndex(w=>new Date(w+"T12:00:00")>today);
+  if(firstFutureIdx>0&&firstFutureIdx<n){ const fx=xPos(firstFutureIdx); html+=`<rect x="${fx}" y="${pad.t}" width="${W-pad.r-fx}" height="${iH}" fill="#f8fafc" opacity="0.7"/><line x1="${fx}" y1="${pad.t}" x2="${fx}" y2="${pad.t+iH}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,3"/>`; }
   series.forEach(s=>{
-    // Line path (skip null gaps)
-    let path="";
+    let pathD="", lastNull=true;
+    s.values.forEach((v,i)=>{ if(v==null){lastNull=true;return;} const x=xPos(i),y=yPos(v); pathD+=(lastNull?`M ${x.toFixed(1)} ${y.toFixed(1)} `:`L ${x.toFixed(1)} ${y.toFixed(1)} `); lastNull=false; });
+    if(pathD) html+=`<path d="${pathD}" fill="none" stroke="${s.color}" stroke-width="${s.sw}" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>`;
+  });
+  series.forEach(s=>{
     s.values.forEach((v,i)=>{
-      if(v===null||v===undefined)return;
-      const x=xPos(i),y=yPos(v);
-      // Find if previous non-null exists
-      const prevIdx=s.values.slice(0,i).map((vv,ii)=>vv!==null?ii:-1).filter(ii=>ii>=0).pop();
-      if(prevIdx===undefined||prevIdx===null||s.values[prevIdx]===null){
-        path+=`M ${x} ${y} `;
-      } else {
-        path+=`L ${x} ${y} `;
-      }
-    });
-    if(path)html+=`<path d="${path}" fill="none" stroke="${s.color}" stroke-width="${s.strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>`;
-
-    // Dots — interactive
-    s.values.forEach((v,i)=>{
-      if(v===null||v===undefined)return;
-      const x=xPos(i),y=yPos(v);
-      const ds=s.dotSize||(isLarge?6:4);
-      // Build tooltip content
-      const lines=series.map(ss=>{
-        const sv=ss.values[i];
-        if(sv===null||sv===undefined)return"";
-        const fmt=ss.tooltipFmt?ss.tooltipFmt(sv,i):String(sv);
-        if(!fmt)return"";
-        return`<div class="tooltip-line"><div class="tooltip-dot" style="background:${ss.color}"></div>${esc(ss.label)}: ${esc(fmt)}</div>`;
-      }).join("");
-      const ttContent=`<div class="tooltip-label">${esc(labels[i])}</div>${lines}`;
-      html+=`<circle cx="${x}" cy="${y}" r="${ds}" fill="${s.color}" stroke="white" stroke-width="2"
-        style="cursor:pointer"
-        onmouseenter="showTT('${ttId}',this,${x},${y},'${ttContent.replace(/'/g,"&#39;")}')"
-        ontouchstart="showTT('${ttId}',this,${x},${y},'${ttContent.replace(/'/g,"&#39;")}')"
-        onmouseleave="hideTT('${ttId}')"
-      />`;
+      if(v==null) return;
+      const x=xPos(i),y=yPos(v),ds=s.ds||5;
+      const tooltipLines=series.map(ss=>{ const sv=ss.values[i]; if(sv==null) return""; const d=ss.fmt?ss.fmt(sv,i):String(sv); return d?`${ss.color}|${ss.label}|${d}`:""; }).filter(Boolean).join(";;");
+      const tl=tooltipLines.replace(/"/g,"&quot;");
+      const wl=labels[i];
+      html+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${ds}" fill="${s.color}" stroke="white" stroke-width="2" style="cursor:pointer" data-week="${wl}" data-lines="${tl}" onmouseenter="dotEnter(event,this)" ontouchstart="dotEnter(event,this);event.preventDefault()" onmouseleave="dotLeave()"/>`;
+      html+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${ds+10}" fill="transparent" style="cursor:pointer" data-week="${wl}" data-lines="${tl}" onmouseenter="dotEnter(event,this)" ontouchstart="dotEnter(event,this);event.preventDefault()" onmouseleave="dotLeave()"/>`;
     });
   });
-
   svg.innerHTML=html;
 }
 
-function showTT(ttId,dot,x,y,html){
-  const tt=document.getElementById(ttId);
-  if(!tt)return;
-  const wrap=tt.parentElement;
-  const wrapRect=wrap.getBoundingClientRect();
-  const svg=wrap.querySelector("svg");
-  const svgRect=svg.getBoundingClientRect();
-  const scaleX=svgRect.width/(parseFloat(svg.getAttribute("viewBox").split(" ")[2])||svgRect.width);
-  const scaleY=svgRect.height/(parseFloat(svg.getAttribute("viewBox").split(" ")[3])||svgRect.height);
-  const px=(svgRect.left-wrapRect.left)+x*scaleX;
-  const py=(svgRect.top-wrapRect.top)+y*scaleY;
-  tt.innerHTML=html;
-  tt.style.left=px+"px";
-  tt.style.top=py+"px";
-  tt.classList.add("show");
+let ttTimer=null;
+function dotEnter(e,el){
+  clearTimeout(ttTimer);
+  const week=el.getAttribute("data-week"), linesRaw=el.getAttribute("data-lines");
+  const tt=document.getElementById("chart-tt");
+  let inner=`<div class="tt-label">${week}</div>`;
+  if(linesRaw) linesRaw.split(";;").forEach(part=>{ const [color,label,val]=part.split("|"); if(val) inner+=`<div class="tt-row"><div class="tt-dot" style="background:${color}"></div><span class="tt-val">${val}</span></div>`; });
+  tt.innerHTML=inner;
+  let cx,cy;
+  if(e.touches&&e.touches.length>0){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}
+  else{cx=e.clientX;cy=e.clientY;}
+  tt.style.opacity="0"; tt.classList.add("show");
+  const tw=tt.offsetWidth, th=tt.offsetHeight;
+  let left=cx-tw/2, top=cy-th-14;
+  if(left<8) left=8; if(left+tw>window.innerWidth-8) left=window.innerWidth-tw-8;
+  if(top<8) top=cy+20;
+  tt.style.left=left+"px"; tt.style.top=top+"px"; tt.style.opacity="1";
 }
-function hideTT(ttId){
-  const tt=document.getElementById(ttId);
-  if(tt)tt.classList.remove("show");
-}
+function dotLeave(){ ttTimer=setTimeout(()=>{ const tt=document.getElementById("chart-tt"); if(tt) tt.classList.remove("show"); },300); }
+document.addEventListener("touchstart",e=>{ if(!e.target.closest("circle")) dotLeave(); });
 
 // ── Navigation ─────────────────────────────────────────────────────────────
-function prevDay(){if(dateIdx>0){dateIdx--;render();}}
-function nextDay(){const d=allDates();if(dateIdx<d.length-1){dateIdx++;render();}}
-function prevWeek(){if(weekIdx>0){weekIdx--;render();}}
-function nextWeek(){const w=allWeeks();if(weekIdx<w.length-1){weekIdx++;render();}}
-function goToDay(d){const idx=allDates().indexOf(d);if(idx>=0){dateIdx=idx;setTab("log");}}
+function prevDay(){ if(dateIdx>0){dateIdx--;render();} }
+function nextDay(){ const d=allDates(); if(dateIdx<d.length-1){dateIdx++;render();} }
+function prevWeek(){ if(weekIdx>0){weekIdx--;render();} }
+function nextWeek(){ if(weekIdx<ALL_WEEKS.length-1){weekIdx++;render();} }
+function goToDay(d){ const idx=allDates().indexOf(d); if(idx>=0){dateIdx=idx;setTab("log");} }
 
 // ── Init ───────────────────────────────────────────────────────────────────
-load();
-const _d=allDates();dateIdx=_d.length>0?_d.length-1:0;
-const _w=allWeeks();weekIdx=_w.length>0?_w.length-1:0;
-render();
+loadAll();
 </script>
 </body>
 </html>
