@@ -238,9 +238,20 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--te
 .wk-m.f span { color: var(--fat); }
 
 /* ══ MISC ══ */
-.trends-placeholder { text-align: center; padding: 80px 40px; color: var(--muted); }
-.trends-placeholder .big-icon { font-size: 40px; margin-bottom: 16px; }
-.trends-placeholder h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); margin-bottom: 8px; }
+.trends-wrap { padding: 4px 0 40px; }
+.t-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px 14px; box-shadow: var(--shadow-sm); margin-bottom: 4px; }
+/* Calendar heatmap */
+.cal-heatmap-svg { display: block; width: 100%; }
+.cal-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
+.cal-leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.cal-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+/* Cal/Step chart legend */
+.cs-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
+.cs-leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.cs-line { display: inline-block; width: 20px; height: 2.5px; border-radius: 2px; }
+.cs-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.cs-dot.met  { background: #16a34a; }
+.cs-dot.miss { background: #dc2626; }
 .loading { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
 .loading-spinner { width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--border); border-top-color: #6E0F1A; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -317,33 +328,59 @@ body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--te
   <main class="main">
     <div class="view active" id="view-daily">
       <div class="date-nav">
-        <button class="date-btn" onclick="changeDay(-1)">←</button>
+        <button class="date-btn" onclick="changeDay(1)">←</button>
         <div>
           <div class="date-main" id="daily-date-label">—</div>
           <div class="date-sub" id="daily-date-sub">—</div>
         </div>
-        <button class="date-btn" onclick="changeDay(1)">→</button>
+        <button class="date-btn" onclick="changeDay(-1)">→</button>
       </div>
       <div id="daily-content"><div class="loading"><div class="loading-spinner"></div>Loading…</div></div>
     </div>
 
     <div class="view" id="view-weekly">
       <div class="date-nav">
-        <button class="date-btn" onclick="changeWeek(-1)">←</button>
+        <button class="date-btn" onclick="changeWeek(1)">←</button>
         <div>
           <div class="date-main" id="weekly-date-label">—</div>
           <div class="date-sub" id="weekly-date-sub">—</div>
         </div>
-        <button class="date-btn" onclick="changeWeek(1)">→</button>
+        <button class="date-btn" onclick="changeWeek(-1)">→</button>
       </div>
       <div id="weekly-content"><div class="loading"><div class="loading-spinner"></div>Loading…</div></div>
     </div>
 
     <div class="view" id="view-trends">
-      <div class="trends-placeholder">
-        <div class="big-icon">📈</div>
-        <h2>Trends coming soon</h2>
-        <p>Charts and patterns across weeks will appear here</p>
+      <div class="trends-wrap">
+        <div class="section-lbl">Goal Tracker — Last 12 Months</div>
+        <div class="t-card">
+          <div id="cal-heatmap"></div>
+          <div class="cal-legend">
+            <span class="cal-leg"><span class="cal-dot" style="background:#2d6a4f"></span>Both goals</span>
+            <span class="cal-leg"><span class="cal-dot" style="background:#52b788"></span>Steps only</span>
+            <span class="cal-leg"><span class="cal-dot" style="background:#74c2ad"></span>Calories only</span>
+            <span class="cal-leg"><span class="cal-dot" style="background:#e05c5c"></span>Neither goal</span>
+            <span class="cal-leg"><span class="cal-dot" style="background:#e8e4dd;border:1px solid #ccc"></span>No data</span>
+            <span id="cal-tooltip-text" style="margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)"></span>
+          </div>
+        </div>
+
+        <div class="section-lbl" style="margin-top:28px">Weekly Weight</div>
+        <div class="t-card">
+          <svg id="weight-svg" style="width:100%;overflow:visible"></svg>
+          <div id="weight-empty" style="display:none;text-align:center;padding:40px;color:var(--muted);font-size:13px">No weight data logged yet</div>
+        </div>
+
+        <div class="section-lbl" style="margin-top:28px">Calories &amp; Steps — Weekly Averages</div>
+        <div class="t-card">
+          <div class="cs-legend">
+            <span class="cs-leg"><span class="cs-line" style="background:var(--fat)"></span>Avg Calories / day</span>
+            <span class="cs-leg"><span class="cs-line" style="background:var(--carbs)"></span>Avg Steps / day</span>
+            <span class="cs-leg"><span class="cs-dot met"></span>Goal met</span>
+            <span class="cs-leg"><span class="cs-dot miss"></span>Goal missed</span>
+          </div>
+          <svg id="calstep-svg" style="width:100%;overflow:visible"></svg>
+        </div>
       </div>
     </div>
   </main>
@@ -667,6 +704,326 @@ function renderWeekly(weekMonday) {
     <div class="week-timeline">${dayRows}</div>`;
 }
 
+// ── TRENDS ────────────────────────────────────────────────────────
+function renderTrends() {
+  renderCalHeatmap();
+  renderWeightChart();
+  renderCalStepChart();
+}
+
+function renderCalHeatmap() {
+  const container = document.getElementById('cal-heatmap');
+  if (!container) return;
+
+  const today = new Date();
+  today.setHours(12,0,0,0);
+  const todayStr = today.toISOString().slice(0,10);
+
+  // Build lookup from daily data
+  const dayLookup = {};
+  DAILY_INFO.forEach(d => {
+    const ds = isoDate(d.date);
+    if (ds) dayLookup[ds] = d;
+  });
+
+  // Start from 364 days ago, aligned to Monday
+  const startRaw = new Date(today); startRaw.setDate(today.getDate()-364);
+  const dow = (startRaw.getDay()+6)%7;
+  startRaw.setDate(startRaw.getDate()-dow);
+
+  // Build weeks array
+  const weeks = [];
+  const cur = new Date(startRaw);
+  while (cur <= today) {
+    const week = [];
+    for (let i=0; i<7; i++) {
+      const ds = cur.toISOString().slice(0,10);
+      week.push(ds <= todayStr ? ds : null);
+      cur.setDate(cur.getDate()+1);
+    }
+    weeks.push(week);
+  }
+
+  const nW = weeks.length;
+  const CELL=13, GAP=2, STEP=CELL+GAP;
+  const ML=32, MR=8, MT=22, MB=4;
+  const svgW = ML + nW*STEP + MR;
+  const svgH = MT + 7*STEP + MB;
+
+  // Month label positions
+  const monthsSeen = new Set();
+  const monthLabels = [];
+  weeks.forEach((wk,wi) => {
+    const first = wk.find(d=>d);
+    if (!first) return;
+    const d = new Date(first+'T12:00:00');
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (d.getDate()<=7 && !monthsSeen.has(key)) {
+      monthsSeen.add(key);
+      monthLabels.push({x: ML+wi*STEP, label: d.toLocaleDateString('en-GB',{month:'short'})});
+    }
+  });
+
+  const dayLabels = ['M','','W','','F','',''];
+
+  function cellColor(ds) {
+    const di = dayLookup[ds];
+    if (!di) return null; // no data
+    const cal  = parseNum(di.total_calories);
+    const step = parseNum(di.steps);
+    if (cal===null && step===null) return null;
+    const calOk  = cal!==null  && cal  < GOALS.calories;
+    const stepOk = step!==null && step >= GOALS.steps;
+    if (calOk && stepOk) return '#2d6a4f';
+    if (stepOk)          return '#52b788';
+    if (calOk)           return '#74c2ad';
+    return '#e05c5c';
+  }
+
+  // Build SVG
+  let cells = '';
+  weeks.forEach((wk,wi) => {
+    wk.forEach((ds,di) => {
+      if (!ds) return;
+      const color = cellColor(ds);
+      const fill  = color || '#e8e4dd';
+      const x = ML + wi*STEP, y = MT + di*STEP;
+      // clickable only if has data
+      if (color) {
+        const d = new Date(ds+'T12:00:00');
+        const dayInfo = dayLookup[ds];
+        const cal  = parseNum(dayInfo.total_calories);
+        const step = parseNum(dayInfo.steps);
+        const calOk  = cal!==null  && cal  < GOALS.calories;
+        const stepOk = step!==null && step >= GOALS.steps;
+        const label = [
+          d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}),
+          cal  !== null ? (calOk?'✓':'✗')+' '+fmt(cal)+' kcal' : '',
+          step !== null ? (stepOk?'✓':'✗')+' '+fmt(step)+' steps' : ''
+        ].filter(Boolean).join(' · ');
+        cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${fill}"
+          class="cal-cell clickable" data-ds="${ds}" data-label="${label}"
+          style="cursor:pointer" />`;
+      } else {
+        cells += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${fill}" />`;
+      }
+    });
+  });
+
+  const mLabels = monthLabels.map(m=>`<text x="${m.x}" y="${MT-8}" font-size="9" fill="var(--muted)" font-family="Outfit,sans-serif">${m.label}</text>`).join('');
+  const dLabels = dayLabels.map((l,i)=>l?`<text x="${ML-5}" y="${MT+i*STEP+CELL*0.75}" font-size="9" fill="var(--muted)" font-family="Outfit,sans-serif" text-anchor="end">${l}</text>`:'').join('');
+
+  container.innerHTML = `<svg viewBox="0 0 ${svgW} ${svgH}" class="cal-heatmap-svg" style="height:${svgH}px">${mLabels}${dLabels}${cells}</svg>`;
+
+  // Hover tooltips + click to navigate to daily view
+  container.querySelectorAll('.cal-cell.clickable').forEach(cell => {
+    cell.addEventListener('mouseenter', () => {
+      document.getElementById('cal-tooltip-text').textContent = cell.dataset.label;
+    });
+    cell.addEventListener('mouseleave', () => {
+      document.getElementById('cal-tooltip-text').textContent = '';
+    });
+    cell.addEventListener('click', () => {
+      const ds = cell.dataset.ds;
+      const days = getAllDays();
+      const idx = days.indexOf(ds);
+      if (idx !== -1) {
+        currentDayIndex = idx;
+        switchView('daily', document.querySelector('.nav-item[onclick*="daily"]'));
+        renderDaily(ds);
+      }
+    });
+  });
+}
+
+function renderWeightChart() {
+  const svg = document.getElementById('weight-svg');
+  const emptyEl = document.getElementById('weight-empty');
+  if (!svg) return;
+
+  // Collect weight data from weekly summaries, sorted by date
+  const pts = WEEKLY_SUMMARY
+    .map(w => ({ wk: isoDate(w.week) || w.week, weight: parseNum(w.weight) }))
+    .filter(p => p.wk && p.weight !== null)
+    .sort((a,b) => a.wk.localeCompare(b.wk));
+
+  if (!pts.length) {
+    svg.style.display = 'none';
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+
+  const CW = 900, CH = 160;
+  const PL=52, PR=20, PT=18, PB=32;
+  const iW=CW-PL-PR, iH=CH-PT-PB;
+  const minW = Math.min(...pts.map(p=>p.weight))-0.8;
+  const maxW = Math.max(...pts.map(p=>p.weight))+0.8;
+  const xp = i => PL + (pts.length>1 ? (i/(pts.length-1))*iW : iW/2);
+  const yp = v => PT + iH - ((v-minW)/(maxW-minW))*iH;
+
+  // Grid ticks
+  const span = maxW-minW;
+  const tickStep = span>4?1:0.5;
+  let ticks=[];
+  for(let t=Math.ceil(minW/tickStep)*tickStep; t<=maxW; t+=tickStep) ticks.push(+t.toFixed(1));
+
+  const gridLines = ticks.map(t=>`
+    <line x1="${PL}" x2="${PL+iW}" y1="${yp(t)}" y2="${yp(t)}" stroke="var(--border)" stroke-width="1"/>
+    <text x="${PL-5}" y="${yp(t)+4}" font-size="9" fill="var(--muted)" text-anchor="end" font-family="DM Mono,monospace">${t}</text>
+  `).join('');
+
+  // Line path
+  const linePath = pts.map((p,i)=>`${i===0?'M':'L'}${xp(i)},${yp(p.weight)}`).join(' ');
+
+  // Dots with hover tooltips
+  const dots = pts.map((p,i) => {
+    const wkEnd = new Date(p.wk+'T12:00:00'); wkEnd.setDate(wkEnd.getDate()+6);
+    const range = new Date(p.wk+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})
+      + ' – ' + wkEnd.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    const ttX = Math.min(Math.max(xp(i)-55,PL), PL+iW-115);
+    return `<g class="wt-pt" style="cursor:default">
+      <circle cx="${xp(i)}" cy="${yp(p.weight)}" r="4" fill="white" stroke="var(--carbs)" stroke-width="2" class="wt-dot"/>
+      <rect x="${ttX}" y="${yp(p.weight)-46}" width="120" height="40" rx="5" fill="var(--text)" class="wt-tt" style="display:none"/>
+      <text x="${ttX+8}" y="${yp(p.weight)-32}" font-size="8.5" fill="#b0c4d8" font-family="DM Mono,monospace" class="wt-tt" style="display:none">${range}</text>
+      <text x="${ttX+8}" y="${yp(p.weight)-16}" font-size="9.5" fill="white" font-family="DM Mono,monospace" font-weight="600" class="wt-tt" style="display:none">${p.weight} kg</text>
+      <circle cx="${xp(i)}" cy="${yp(p.weight)}" r="10" fill="transparent" class="wt-hit"/>
+    </g>`;
+  }).join('');
+
+  // X labels every ~4 pts
+  const step = Math.max(1, Math.floor(pts.length/6));
+  const xLabels = pts.map((p,i) => {
+    if (i % step !== 0 && i !== pts.length-1) return '';
+    const d = new Date(p.wk+'T12:00:00');
+    return `<text x="${xp(i)}" y="${PT+iH+18}" font-size="9" fill="var(--muted)" text-anchor="middle" font-family="Outfit,sans-serif">${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</text>`;
+  }).join('');
+
+  svg.setAttribute('viewBox', `0 0 ${CW} ${CH}`);
+  svg.style.height = CH+'px';
+  svg.innerHTML = `${gridLines}<path d="${linePath}" fill="none" stroke="var(--carbs)" stroke-width="2" stroke-linejoin="round"/>${dots}${xLabels}`;
+
+  // Hover interactions
+  svg.querySelectorAll('.wt-pt').forEach(g => {
+    const dot = g.querySelector('.wt-dot');
+    const tts = g.querySelectorAll('.wt-tt');
+    g.addEventListener('mouseenter', () => {
+      dot.setAttribute('r','5'); dot.setAttribute('fill','var(--carbs)');
+      tts.forEach(el=>el.style.display='');
+    });
+    g.addEventListener('mouseleave', () => {
+      dot.setAttribute('r','4'); dot.setAttribute('fill','white');
+      tts.forEach(el=>el.style.display='none');
+    });
+  });
+}
+
+function renderCalStepChart() {
+  const svg = document.getElementById('calstep-svg');
+  if (!svg) return;
+
+  // Build weekly averages from daily data
+  const weekMap = {};
+  DAILY_INFO.forEach(d => {
+    const ds = isoDate(d.date); if (!ds) return;
+    const wm = getWeekMonday(ds);
+    if (!weekMap[wm]) weekMap[wm] = {calVals:[], stepVals:[]};
+    const cal  = parseNum(d.total_calories);
+    const step = parseNum(d.steps);
+    if (cal  !== null) weekMap[wm].calVals.push(cal);
+    if (step !== null) weekMap[wm].stepVals.push(step);
+  });
+
+  const pts = Object.keys(weekMap).sort().map(wm => {
+    const {calVals, stepVals} = weekMap[wm];
+    const avgC = calVals.length  ? calVals.reduce((a,b)=>a+b,0)/calVals.length   : null;
+    const avgS = stepVals.length ? stepVals.reduce((a,b)=>a+b,0)/stepVals.length : null;
+    return { wm, avgC, avgS };
+  }).filter(p => p.avgC !== null || p.avgS !== null);
+
+  if (!pts.length) return;
+
+  const CW=900, CH=200;
+  const PL=56, PR=56, PT=16, PB=36;
+  const iW=CW-PL-PR, iH=CH-PT-PB;
+
+  const calMin=0, calMax=2200, stpMin=0, stpMax=14000;
+  const xp  = i => PL + (pts.length>1 ? (i/(pts.length-1))*iW : iW/2);
+  const yc  = v => PT + iH - ((v-calMin)/(calMax-calMin))*iH;
+  const ys  = v => PT + iH - ((v-stpMin)/(stpMax-stpMin))*iH;
+
+  // Grid (left axis = calories)
+  const calTicks = [500,1000,1500,2000];
+  const grid = calTicks.map(t=>`
+    <line x1="${PL}" x2="${PL+iW}" y1="${yc(t)}" y2="${yc(t)}" stroke="var(--border)" stroke-width="1"/>
+    <text x="${PL-5}" y="${yc(t)+4}" font-size="9" fill="var(--muted)" text-anchor="end" font-family="DM Mono,monospace">${t}</text>
+  `).join('') + [5000,10000].map(t=>`
+    <text x="${PL+iW+5}" y="${ys(t)+4}" font-size="9" fill="var(--muted)" text-anchor="start" font-family="DM Mono,monospace">${t>=1000?t/1000+'k':t}</text>
+  `).join('');
+
+  // Line paths
+  const calPts  = pts.map((p,i)=>p.avgC!==null?`${i===0||pts[i-1].avgC===null?'M':'L'}${xp(i)},${yc(p.avgC)}`:null).filter(Boolean).join(' ');
+  const stpPts  = pts.map((p,i)=>p.avgS!==null?`${i===0||pts[i-1].avgS===null?'M':'L'}${xp(i)},${ys(p.avgS)}`:null).filter(Boolean).join(' ');
+
+  // Dots coloured by goal
+  const DOT_MET='#16a34a', DOT_MISS='#dc2626';
+  const dots = pts.map((p,i) => {
+    const wkEnd = new Date(p.wm+'T12:00:00'); wkEnd.setDate(wkEnd.getDate()+6);
+    const range = new Date(p.wm+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})
+      + ' – ' + wkEnd.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    const calMet  = p.avgC !== null && p.avgC  < GOALS.calories;
+    const stepMet = p.avgS !== null && p.avgS >= GOALS.steps;
+    const calFill  = p.avgC  !== null ? (calMet  ? DOT_MET : DOT_MISS) : 'none';
+    const stepFill = p.avgS  !== null ? (stepMet ? DOT_MET : DOT_MISS) : 'none';
+    const cIcon = calMet  ? '✓' : '✗';
+    const sIcon = stepMet ? '✓' : '✗';
+    const ttX = Math.min(Math.max(xp(i)-55, PL), PL+iW-130);
+    return `<g class="cs-pt">
+      ${p.avgC!==null?`<circle cx="${xp(i)}" cy="${yc(p.avgC)}" r="3.5" fill="${calFill}"  stroke="white" stroke-width="1.5" class="cs-dot-c"/>`:''}
+      ${p.avgS!==null?`<circle cx="${xp(i)}" cy="${ys(p.avgS)}" r="3.5" fill="${stepFill}" stroke="white" stroke-width="1.5" class="cs-dot-s"/>`:''}
+      <rect x="${ttX}" y="${PT-6}" width="130" height="52" rx="5" fill="var(--text)" class="cs-tt" style="display:none"/>
+      <text x="${ttX+8}" y="${PT+8}"  font-size="8.5" fill="#b0c4d8" font-family="DM Mono,monospace" class="cs-tt" style="display:none">${range}</text>
+      ${p.avgC!==null?`<text x="${ttX+8}" y="${PT+23}" font-size="9" fill="#f9a8b4" font-family="DM Mono,monospace" class="cs-tt" style="display:none">${cIcon} ${Math.round(p.avgC).toLocaleString()} kcal/day</text>`:''}
+      ${p.avgS!==null?`<text x="${ttX+8}" y="${PT+38}" font-size="9" fill="#93b4d4" font-family="DM Mono,monospace" class="cs-tt" style="display:none">${sIcon} ${Math.round(p.avgS).toLocaleString()} steps/day</text>`:''}
+      <rect x="${xp(i)-8}" y="${PT}" width="16" height="${iH}" fill="transparent" class="cs-hit" style="cursor:pointer"/>
+    </g>`;
+  }).join('');
+
+  // X labels
+  const step = Math.max(1, Math.floor(pts.length/6));
+  const xLabels = pts.map((p,i) => {
+    if (i % step !== 0 && i !== pts.length-1) return '';
+    const d = new Date(p.wm+'T12:00:00');
+    return `<text x="${xp(i)}" y="${PT+iH+18}" font-size="9" fill="var(--muted)" text-anchor="middle" font-family="Outfit,sans-serif">${d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</text>`;
+  }).join('');
+
+  svg.setAttribute('viewBox',`0 0 ${CW} ${CH}`);
+  svg.style.height = CH+'px';
+  svg.innerHTML = `
+    ${grid}
+    <path d="${calPts}" fill="none" stroke="var(--fat)"   stroke-width="2" stroke-linejoin="round"/>
+    <path d="${stpPts}" fill="none" stroke="var(--carbs)" stroke-width="2" stroke-linejoin="round"/>
+    ${dots}${xLabels}
+    <text x="${PL-42}" y="${PT+iH/2}" font-size="9" fill="var(--fat)"   text-anchor="middle" font-family="Outfit,sans-serif" transform="rotate(-90,${PL-42},${PT+iH/2})">Calories</text>
+    <text x="${PL+iW+42}" y="${PT+iH/2}" font-size="9" fill="var(--carbs)" text-anchor="middle" font-family="Outfit,sans-serif" transform="rotate(90,${PL+iW+42},${PT+iH/2})">Steps</text>
+  `;
+
+  svg.querySelectorAll('.cs-pt').forEach(g => {
+    const tts  = g.querySelectorAll('.cs-tt');
+    const dotC = g.querySelector('.cs-dot-c');
+    const dotS = g.querySelector('.cs-dot-s');
+    g.addEventListener('mouseenter', () => {
+      tts.forEach(el => el.style.display = '');
+      if (dotC) dotC.setAttribute('r','5');
+      if (dotS) dotS.setAttribute('r','5');
+    });
+    g.addEventListener('mouseleave', () => {
+      tts.forEach(el => el.style.display = 'none');
+      if (dotC) dotC.setAttribute('r','3.5');
+      if (dotS) dotS.setAttribute('r','3.5');
+    });
+  });
+}
+
 function init() {
   const now = new Date();
   document.getElementById('last-updated').textContent =
@@ -679,6 +1036,8 @@ function init() {
 
   const weeks = getAllWeeks();
   if (weeks.length) { currentWeekIndex=0; renderWeekly(weeks[0]); }
+
+  renderTrends();
 }
 
 document.addEventListener('DOMContentLoaded', init);
