@@ -22,17 +22,17 @@ jobs:
 
           const TOKEN = process.env.NOTION_TOKEN;
 
-          // These are the DATA SOURCE IDs (collection IDs), not database IDs
-          const DS_ENTRIES = 'db8f1863-7825-456f-8463-931c3f76526f';
-          const DS_DAILY   = 'd7b49364-98a9-4095-aaf4-673edde2aa94';
-          const DS_WEEKLY  = '8a65a531-e288-426c-8130-6531692d9401';
+          // Standard database page IDs (what the REST API uses)
+          const DB_ENTRIES = '12f7117ab09743b7a38ebdec15bd6080';
+          const DB_DAILY   = 'd114a85d19e94168911b3da1de68c305';
+          const DB_WEEKLY  = '761fdcaefd0b4c05b21a1295719c4195';
 
-          function notionQuery(dataSourceId) {
+          function notionQuery(dbId) {
             return new Promise((resolve) => {
               const body = JSON.stringify({ page_size: 100 });
               const req = https.request({
                 hostname: 'api.notion.com',
-                path: '/v1/databases/' + dataSourceId + '/query',
+                path: '/v1/databases/' + dbId + '/query',
                 method: 'POST',
                 headers: {
                   'Authorization': 'Bearer ' + TOKEN,
@@ -46,7 +46,9 @@ jobs:
                 res.on('end', () => {
                   try {
                     const parsed = JSON.parse(data);
-                    console.log('DS ' + dataSourceId + ' status:', res.statusCode, '| rows:', parsed.results ? parsed.results.length : 'ERROR: ' + JSON.stringify(parsed).slice(0, 200));
+                    const count = parsed.results ? parsed.results.length : 'ERROR';
+                    console.log('DB ' + dbId + ' HTTP ' + res.statusCode + ' rows=' + count);
+                    if (!parsed.results) console.log('  Error body:', JSON.stringify(parsed).slice(0,300));
                     resolve(parsed);
                   } catch(e) {
                     console.log('Parse error:', e.message);
@@ -54,10 +56,7 @@ jobs:
                   }
                 });
               });
-              req.on('error', err => {
-                console.log('Request error:', err.message);
-                resolve({ results: [] });
-              });
+              req.on('error', err => { console.log('Req error:', err.message); resolve({ results: [] }); });
               req.write(body);
               req.end();
             });
@@ -76,50 +75,61 @@ jobs:
 
           async function main() {
             const [re, rd, rw] = await Promise.all([
-              notionQuery(DS_ENTRIES),
-              notionQuery(DS_DAILY),
-              notionQuery(DS_WEEKLY)
+              notionQuery(DB_ENTRIES),
+              notionQuery(DB_DAILY),
+              notionQuery(DB_WEEKLY)
             ]);
 
+            // Food entries — Date is a date type, extract start
             const entries = (re.results || []).map(p => ({
-              date: prop(p,'Date'), time: prop(p,'Time'), type: prop(p,'Type'),
-              description: prop(p,'Description'), calories: prop(p,'Calories'),
-              protein: prop(p,'Protein'), carbs: prop(p,'Carbs'), fat: prop(p,'Fat'),
+              date: prop(p,'Date'),
+              time: prop(p,'Time'),
+              type: prop(p,'Type'),
+              description: prop(p,'Description'),
+              calories: prop(p,'Calories'),
+              protein: prop(p,'Protein'),
+              carbs: prop(p,'Carbs'),
+              fat: prop(p,'Fat'),
             })).filter(e => e.date).sort((a,b) => a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
 
+            // Daily info — Date is the title field
             const daily = {};
             (rd.results || []).forEach(p => {
               const d = prop(p,'Date'); if (!d) return;
               daily[d] = {
-                steps: prop(p,'Steps'), exercise: prop(p,'Exercise'),
-                symptoms: prop(p,'Symptoms'), meds: prop(p,'Medication'),
-                cal: prop(p,'Total Calories'), pro: prop(p,'Total Protein'),
-                carb: prop(p,'Total Carbs'), fat: prop(p,'Total Fat'),
+                steps:    prop(p,'Steps'),
+                exercise: prop(p,'Exercise'),
+                symptoms: prop(p,'Symptoms'),
+                meds:     prop(p,'Medication'),
+                cal:      prop(p,'Total Calories'),
+                pro:      prop(p,'Total Protein'),
+                carb:     prop(p,'Total Carbs'),
+                fat:      prop(p,'Total Fat'),
               };
             });
 
+            // Weekly summary
             const weekly = {};
             (rw.results || []).forEach(p => {
               const w = prop(p,'Week'); if (!w) return;
-              const wt = prop(p,'Weight (kg)');
               weekly[w] = {
-                weight: wt ? parseFloat(wt.replace(/[^0-9.]/g,'')) || null : null,
-                avgCal: parseFloat((prop(p,'Avg Calories')||'').replace(/[^0-9.]/g,'')) || null,
+                weight:   parseFloat((prop(p,'Weight (kg)')||'').replace(/[^0-9.]/g,'')) || null,
+                avgCal:   parseFloat((prop(p,'Avg Calories')||'').replace(/[^0-9.]/g,'')) || null,
                 avgSteps: parseFloat((prop(p,'Avg Steps')||'').replace(/[^0-9.]/g,'')) || null,
-                avgPro: parseFloat((prop(p,'Avg Protein')||'').replace(/[^0-9.]/g,'')) || null,
-                avgCarb: parseFloat((prop(p,'Avg Carbs')||'').replace(/[^0-9.]/g,'')) || null,
-                avgFat: parseFloat((prop(p,'Avg Fat')||'').replace(/[^0-9.]/g,'')) || null,
+                avgPro:   parseFloat((prop(p,'Avg Protein')||'').replace(/[^0-9.]/g,'')) || null,
+                avgCarb:  parseFloat((prop(p,'Avg Carbs')||'').replace(/[^0-9.]/g,'')) || null,
+                avgFat:   parseFloat((prop(p,'Avg Fat')||'').replace(/[^0-9.]/g,'')) || null,
                 exerciseDays: prop(p,'Exercise Days') || null,
               };
             });
 
-            console.log('Final: entries=' + entries.length + ' daily=' + Object.keys(daily).length + ' weekly=' + Object.keys(weekly).length);
+            console.log('Result: entries=' + entries.length + ' daily=' + Object.keys(daily).length + ' weekly=' + Object.keys(weekly).length);
 
             let html = fs.readFileSync('template.html', 'utf8');
             html = html.replace('__NOTION_DATA__', JSON.stringify({ entries, daily, weekly }));
             html = html.replace('__BUILD_TIME__', new Date().toISOString());
             fs.writeFileSync('index.html', html);
-            console.log('Built index.html successfully');
+            console.log('Done.');
           }
 
           main().catch(e => { console.error('Fatal:', e); process.exit(1); });
