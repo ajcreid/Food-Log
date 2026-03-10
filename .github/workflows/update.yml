@@ -1,9 +1,9 @@
 name: Update Food Log
 
 on:
-  workflow_dispatch:  # Allows triggering via GitHub API (how Claude triggers it)
+  workflow_dispatch:
   schedule:
-    - cron: '0 * * * *'  # Also rebuilds every hour as a backup
+    - cron: '0 * * * *'
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: |
-          node -e "
+          node << 'EOF'
           const https = require('https');
           const fs = require('fs');
 
@@ -26,7 +26,7 @@ jobs:
           const DB_WEEKLY  = '761fdcaefd0b4c05b21a1295719c4195';
 
           function notionQuery(dbId) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
               const body = JSON.stringify({ page_size: 100 });
               const req = https.request({
                 hostname: 'api.notion.com',
@@ -41,9 +41,26 @@ jobs:
               }, res => {
                 let data = '';
                 res.on('data', chunk => data += chunk);
-                res.on('end', () => resolve(JSON.parse(data)));
+                res.on('end', () => {
+                  try {
+                    const parsed = JSON.parse(data);
+                    console.log('DB ' + dbId + ' status:', res.statusCode);
+                    if (!parsed.results) {
+                      console.log('DB ' + dbId + ' error:', JSON.stringify(parsed).slice(0, 400));
+                    } else {
+                      console.log('DB ' + dbId + ' rows:', parsed.results.length);
+                    }
+                    resolve(parsed);
+                  } catch(e) {
+                    console.log('DB ' + dbId + ' parse error:', e.message);
+                    resolve({ results: [] });
+                  }
+                });
               });
-              req.on('error', reject);
+              req.on('error', err => {
+                console.log('DB ' + dbId + ' request error:', err.message);
+                resolve({ results: [] });
+              });
               req.write(body);
               req.end();
             });
@@ -67,14 +84,14 @@ jobs:
               notionQuery(DB_WEEKLY)
             ]);
 
-            const entries = re.results.map(p => ({
+            const entries = (re.results || []).map(p => ({
               date: prop(p,'Date'), time: prop(p,'Time'), type: prop(p,'Type'),
               description: prop(p,'Description'), calories: prop(p,'Calories'),
               protein: prop(p,'Protein'), carbs: prop(p,'Carbs'), fat: prop(p,'Fat'),
             })).filter(e => e.date).sort((a,b) => a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
 
             const daily = {};
-            rd.results.forEach(p => {
+            (rd.results || []).forEach(p => {
               const d = prop(p,'Date'); if (!d) return;
               daily[d] = {
                 steps: prop(p,'Steps'), exercise: prop(p,'Exercise'),
@@ -85,37 +102,31 @@ jobs:
             });
 
             const weekly = {};
-            rw.results.forEach(p => {
+            (rw.results || []).forEach(p => {
               const w = prop(p,'Week'); if (!w) return;
               const wt = prop(p,'Weight (kg)');
               weekly[w] = {
-                weightDisplay: wt,
                 weight: wt ? parseFloat(wt.replace(/[^0-9.]/g,'')) || null : null,
-                avgCalDisplay: prop(p,'Avg Calories'),
                 avgCal: parseFloat((prop(p,'Avg Calories')||'').replace(/[^0-9.]/g,'')) || null,
-                avgStepsDisplay: prop(p,'Avg Steps'),
                 avgSteps: parseFloat((prop(p,'Avg Steps')||'').replace(/[^0-9.]/g,'')) || null,
-                avgProDisplay: prop(p,'Avg Protein'),
                 avgPro: parseFloat((prop(p,'Avg Protein')||'').replace(/[^0-9.]/g,'')) || null,
-                avgCarbDisplay: prop(p,'Avg Carbs'),
                 avgCarb: parseFloat((prop(p,'Avg Carbs')||'').replace(/[^0-9.]/g,'')) || null,
-                avgFatDisplay: prop(p,'Avg Fat'),
                 avgFat: parseFloat((prop(p,'Avg Fat')||'').replace(/[^0-9.]/g,'')) || null,
                 exerciseDays: prop(p,'Exercise Days') || null,
               };
             });
 
-            // Read the HTML template and inject data
+            console.log('Processed:', entries.length, 'entries,', Object.keys(daily).length, 'daily,', Object.keys(weekly).length, 'weekly');
+
             let html = fs.readFileSync('template.html', 'utf8');
-            const dataJson = JSON.stringify({ entries, daily, weekly });
-            html = html.replace('__NOTION_DATA__', dataJson);
+            html = html.replace('__NOTION_DATA__', JSON.stringify({ entries, daily, weekly }));
             html = html.replace('__BUILD_TIME__', new Date().toISOString());
             fs.writeFileSync('index.html', html);
-            console.log('Built index.html with', entries.length, 'entries');
+            console.log('Built index.html successfully');
           }
 
-          main().catch(e => { console.error(e); process.exit(1); });
-          "
+          main().catch(e => { console.error('Fatal:', e); process.exit(1); });
+          EOF
 
       - name: Commit and push
         run: |
