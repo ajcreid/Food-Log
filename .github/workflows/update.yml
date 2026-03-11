@@ -2,8 +2,8 @@ name: Update Food Log
 
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [meal-logged]
+  schedule:
+    - cron: '*/15 * * * *'
 
 jobs:
   build:
